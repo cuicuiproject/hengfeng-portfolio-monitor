@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>恒丰理财 · 委外穿透监测平台</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #f0f2f5;
+  --bg-panel: #ffffff;
+  --bg-card: #f8f9fb;
+  --bg-hover: #f0f4f8;
+  --border: #e0e5ec;
+  --border-light: #eef1f5;
+  --primary: #185FA5;
+  --primary-light: #378ADD;
+  --primary-dark: #0C447C;
+  --primary-bg: #E6F1FB;
+  --accent: #854F0B;
+  --accent-light: #BA7517;
+  --accent-bg: #FAEEDA;
+  --text-primary: #1a2633;
+  --text-secondary: #5a6d80;
+  --text-muted: #8a9bb0;
+  --danger: #A32D2D;
+  --danger-light: #E24B4A;
+  --danger-bg: #FCEBEB;
+  --warning: #854F0B;
+  --warning-light: #BA7517;
+  --warning-bg: #FAEEDA;
+  --success: #0F6E56;
+  --success-light: #1D9E75;
+  --success-bg: #E1F5EE;
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04);
+  --transition: 0.15s cubic-bezier(.4,0,.2,1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.app { position:relative; }
+
+/* ---- Header ---- */
+.header {
+  background: #fff;
+  border-bottom: 0.5px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left { display:flex; align-items:center; gap:12px; }
+.logo {
+  width: 32px; height: 32px;
+  background: var(--primary);
+  border-radius: var(--radius-sm);
+  display: flex; align-items:center; justify-content:center;
+  font-family: 'DM Mono', monospace;
+  font-size: 14px; font-weight: 500;
+  color: #fff;
+}
+.header-title { font-size: 15px; font-weight: 500; letter-spacing: .3px; }
+.header-right { display:flex; align-items:center; gap:12px; }
+
+.btn {
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 13px; font-weight: 400;
+  cursor: pointer;
+  border: 0.5px solid var(--border);
+  background: #fff;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  display: flex; align-items:center; gap:6px;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); color:#fff; }
+.btn-accent {
+  background: var(--accent-light);
+  color: #fff;
+  border-color: var(--accent-light);
+}
+.btn-accent:hover { background: var(--accent); border-color: var(--accent); color:#fff; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+.nav-tab {
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 20px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+.nav-tab:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.nav-tab:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.nav-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: var(--primary-bg);
+}
+.nav-tab:hover { color: var(--primary); background: var(--primary-bg); }
+.sub-tab {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border: 0.5px solid transparent;
+  border-bottom: none;
+  padding: 7px 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: transparent;
+  margin-right: 2px;
+}
+.sub-tab.active {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--primary);
+  font-weight: 500;
+}
+.sub-tab:hover { color: var(--primary); }
+.tip { cursor:help; border-bottom:1px dotted var(--text-muted); position:relative; }
+.tip:hover::after { content:attr(data-tip); position:absolute; right:0; top:100%;
+  background:#333; color:#fff; padding:6px 10px; border-radius:4px; font-size:11px;
+  font-weight:400; white-space:nowrap; z-index:99; margin-top:4px; }
+
+.product-list-item { cursor:pointer; transition:var(--transition); }
+.product-list-item:hover { background:var(--bg-hover); }
+
+/* ---- Main Content ---- */
+.main { padding: 16px 24px; display:flex; flex-direction:column; gap:12px; }
+
+/* ---- Fetch Panel ---- */
+.fetch-panel {
+  background: var(--bg-panel);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.fetch-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-bg);
+  display: flex; align-items:center; justify-content:center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.fetch-info { flex:1; }
+.fetch-label { font-size: 13px; font-weight: 500; }
+.fetch-detail { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+/* ---- Panel ---- */
+.panel {
+  background: var(--bg-panel);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.panel-header {
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-title { font-size: 13px; font-weight: 500; }
+.panel-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+}
+.panel-badge.primary { background: var(--primary-bg); color: var(--primary); }
+.panel-badge.accent { background: var(--accent-bg); color: var(--accent-light); }
+.panel-body { padding: 0; max-height: 560px; overflow: auto; }
+
+/* Table */
+.table-wrap { overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  text-align: left;
+  padding: 8px 10px;
+  font-weight: 500;
+  color: #3a4d60;
+  font-size: 11px;
+  border-bottom: 0.5px solid var(--border);
+  white-space: nowrap;
+  position: sticky; top: 0;
+  background: var(--bg-card);
+  z-index: 2;
+}
+thead th:first-child, tbody td:first-child {
+  position: sticky; left: 0;
+  background: #fff;
+  z-index: 1;
+}
+thead th:first-child { z-index: 3; background: var(--bg-card); }
+tbody td {
+  padding: 7px 10px;
+  border-bottom: 0.5px solid var(--border-light);
+  white-space: nowrap;
+}
+tbody tr { transition: var(--transition); }
+tbody tr:hover { background: var(--bg-hover); }
+tbody tr:hover td:first-child { background: var(--bg-hover); }
+
+/* Number formatting */
+.num { font-family: 'DM Mono', monospace; text-align: right; }
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'DM Mono', monospace;
+}
+.tag-equity { background: var(--danger-bg); color: var(--danger); }
+.tag-hybrid { background: var(--warning-bg); color: var(--warning-light); }
+.tag-bond { background: var(--success-bg); color: var(--success); }
+.tag-cb { background: var(--accent-bg); color: var(--accent-light); }
+.tag-etf { background: var(--primary-bg); color: var(--primary); }
+.tag-money { background: #F1EFE8; color: var(--text-secondary); }
+
+/* Sortable */
+th.sortable { cursor:pointer; user-select:none; }
+th.sortable:hover { color:var(--primary); }
+th.sortable::after { content:' \2195'; font-size:10px; color:var(--text-muted); }
+th.sortable.asc::after { content:' \2191'; color:var(--primary); }
+th.sortable.desc::after { content:' \2193'; color:var(--primary); }
+
+/* Mini bar in cell */
+.cell-bar {
+  display: inline-block;
+  width: 40px;
+  height: 4px;
+  background: var(--border-light);
+  border-radius: 2px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+.cell-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+.cell-bar-fill.eq { background: var(--danger-light); }
+.cell-bar-fill.cb { background: var(--accent-light); }
+.cell-bar-fill.sec { background: var(--success-light); }
+
+/* Full-width */
+.full-width { grid-column: 1 / -1; }
+
+/* Pagination */
+.pagination {
+  padding: 8px 16px;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.pagination-btns { display:flex; gap:4px; }
+.pagination-btns .btn { padding: 3px 10px; font-size: 12px; min-width: 28px; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.4);
+  display: flex; align-items:center; justify-content:center;
+  z-index: 200;
+  opacity: 0; visibility: hidden;
+  transition: opacity .2s, visibility .2s;
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal {
+  background: var(--bg-panel);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 480px;
+  max-width: 90vw;
+}
+.modal h3 { font-size: 15px; margin-bottom: 6px; font-weight: 500; }
+.modal p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+
+/* Email simulation */
+.email-steps { display:flex; flex-direction:column; gap:8px; margin: 16px 0; }
+.email-step {
+  display: flex; align-items:center; gap:10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 0.5px solid var(--border-light);
+  font-size: 13px;
+  opacity: .5;
+  transition: var(--transition);
+}
+.email-step.done { opacity: 1; border-color: var(--success); background: var(--success-bg); }
+.email-step.active { opacity: 1; border-color: var(--primary); background: var(--primary-bg); }
+.email-step-icon {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex; align-items:center; justify-content:center;
+  font-size: 12px;
+  flex-shrink: 0;
+  font-family: 'DM Mono', monospace;
+}
+.email-step-icon.wait { background: var(--border-light); color: var(--text-muted); }
+.email-step-icon.done { background: var(--success-bg); color: var(--success); }
+.email-step-icon.active { background: var(--primary-bg); color: var(--primary); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c5ced8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9aa5b5; }
+
+/* Input */
+.search-input {
+  padding: 6px 12px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  width: 220px;
+  outline: none;
+  transition: var(--transition);
+}
+.search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-bg); }
+
+/* Page title */
+.page-title { font-size: 16px; font-weight: 500; margin: 0; }
+.page-subtitle { font-size: 12px; color: var(--text-secondary); margin: 2px 0 0; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+}
+@media (max-width: 768px) {
+  .header { padding: 0 16px; }
+  .main { padding: 12px 16px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .fetch-panel { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">HF</div>
+      <div class="header-title">恒丰理财 · 委外穿透监测平台</div>
+      <div style="display:flex;gap:0;margin-left:24px;">
+        <button class="btn nav-tab active" id="tabDashboard" onclick="switchPage('dashboard')">持仓穿透</button>
+        <button class="btn nav-tab" id="tabNav" onclick="switchPage('nav')">净值序列</button>
+        <button class="btn nav-tab" id="tabDetail" onclick="switchPage('detail')">持仓明细</button>
+        <button class="btn nav-tab" id="tabRules" onclick="switchPage('rules')">计算规则</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-accent" onclick="exportExcel()">导出 Excel</button>
+    </div>
+  </header>
+
+  <!-- Dashboard Page -->
+  <main class="main" id="page-dashboard">
+    <!-- Fetch Panel -->
+    <div class="fetch-panel" id="fetchPanel">
+      <div class="fetch-icon">📊</div>
+      <div class="fetch-info">
+        <div class="fetch-label" id="fetchLabel">2026-06-17 估值表解析情况</div>
+        <div class="fetch-detail">已解析 10 份估值表 · 覆盖 81 笔基金 · 229 笔股票 · 12 笔转债</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">估值日期</span>
+        <input type="date" id="dateFilter" value="2026-06-17"
+          style="padding:5px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:#fff;"
+          onchange="filterByDate(this.value)">
+      </div>
+    </div>
+
+    <!-- Product Table -->
+    <div class="panel full-width">
+      <div class="panel-body" id="productTable"></div>
+      <div class="pagination" id="productPagination"></div>
+    </div>
+  </main>
+
+  <!-- Holdings Detail Page -->
+  <main class="main" id="page-detail" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+      <span style="font-size:13px;font-weight:500;">估值日期</span>
+      <input type="date" id="detailDateFilter" value="2026-06-17"
+        style="padding:5px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:#fff;"
+        onchange="filterDetailByDate(this.value)">
+      <span style="font-size:11px;color:var(--text-muted);">选择日期查看对应持仓明细</span>
+    </div>
+    <div style="display:flex;gap:16px;height:calc(100vh - 150px);">
+      <!-- Left: Product List -->
+      <div class="panel" style="width:280px;flex-shrink:0;">
+        <div class="panel-header"><div class="panel-title">产品列表 <span style="color:var(--text-muted);font-size:11px;">(10个)</span></div></div>
+        <div class="panel-body" id="detailProductList" style="max-height:calc(100vh - 210px);"></div>
+      </div>
+      <!-- Right: Holdings Tabs + Table -->
+      <div class="panel" style="flex:1;display:flex;flex-direction:column;">
+        <div style="padding:8px 16px;border-bottom:0.5px solid var(--border);display:flex;gap:0;" id="detailTabs">
+          <button class="btn sub-tab active" onclick="switchDetailTab('fund')">基金持仓</button>
+          <button class="btn sub-tab" onclick="switchDetailTab('stock')">股票持仓</button>
+          <button class="btn sub-tab" onclick="switchDetailTab('cb')">转债持仓</button>
+          <span style="flex:1;"></span>
+          <span style="font-size:12px;color:var(--text-muted);padding:8px;" id="detailProductLabel">请选择产品</span>
+        </div>
+        <div class="panel-body" id="detailHoldingsTable" style="flex:1;"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- NAV History Page -->
+  <main class="main" id="page-nav" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div>
+        <h2 class="page-title">产品净值序列</h2>
+        <p class="page-subtitle" id="navSubtitle">数据截至 2026-06-17 · 共 10 个产品</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" class="search-input" id="navSearch" placeholder="搜索产品名称..." oninput="filterNavTable()">
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-body" id="navTableContainer"></div>
+      <div class="pagination" id="navPagination"></div>
+    </div>
+  </main>
+
+  <!-- Rules Page -->
+  <main class="main" id="page-rules" style="display:none;">
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">计算规则说明</div></div>
+      <div class="panel-body" style="padding:20px 24px;max-height:none;">
+        <table style="font-size:12px;">
+          <thead><tr><th style="width:200px;">字段</th><th>计算规则</th></tr></thead>
+          <tbody>
+            <tr><td>估值日期</td><td>从估值表表头提取，格式统一为 YYYY-MM-DD</td></tr>
+            <tr><td>估值日单位净值</td><td>从估值表表头提取，资管计划单位份额净值</td></tr>
+            <tr><td>资产合计</td><td>估值表中"资产类合计"行对应市值列，即总资产（含负债）</td></tr>
+            <tr><td>负债合计</td><td>估值表中"负债类合计"行对应市值列</td></tr>
+            <tr><td>资产净值</td><td>估值表中"资产净值"行对应市值列，= 资产合计 − 负债合计</td></tr>
+            <tr><td>活期存款</td><td>名称含"银行存款"的行对应市值列（代码通常为 1002）</td></tr>
+            <tr><td>结算备付金</td><td>名称含"结算备付金"的行对应市值列（代码通常为 1021）</td></tr>
+            <tr><td>逆回购</td><td>名称含"买入返售"的行对应市值列（代码通常为 1111 或 1202）</td></tr>
+            <tr><td>杠杆率</td><td>= 资产合计 ÷ 资产净值。开放式理财产品监管要求 ≤ 140%（即 1.40）</td></tr>
+            <tr><td>直投股票</td><td>名称含"股票投资"的行（代码通常为 1102 或 110101），逐只个股汇总，过滤汇总行</td></tr>
+            <tr><td>权益类基金</td><td>基金持仓中分类为"权益类基金"的市值之和（含股票型基金、股票ETF、偏股混合型中权益属性强的基金）</td></tr>
+            <tr><td>混合类基金</td><td>基金持仓中分类为"混合类基金"的市值之和（偏债混合型、灵活配置型等）</td></tr>
+            <tr><td>穿透权益敞口(%)</td><td>= (Σ(每只基金市值×该基金财汇数据源实际权益仓位) + 直投股票 + Σ(每只可转债市值×该转债财汇数据源权益比例)) ÷ 资产合计 × 100%。各基金权益仓位和转债权益比例均由财汇数据源提供</td></tr>
+            <tr><td>直投转债</td><td>名称含"转债"或"可转债"的行（代码通常为 110312/110332），仅取持仓行（含 .01），不含应计利息和估值增值</td></tr>
+            <tr><td>转债基金</td><td>基金持仓中分类为"转债基金"的市值之和（可转债基金、转债ETF等）</td></tr>
+            <tr><td>转债占比</td><td>= (直投转债 + 转债基金) ÷ 资产合计 × 100%</td></tr>
+            <tr><td>二级债基</td><td>基金持仓中分类为"二级债基"的市值之和（混合债券型二级基金，可投 ≤ 20% 股票）</td></tr>
+            <tr><td>二级债基占比</td><td>= 二级债基 ÷ 资产合计 × 100%。注意：二级债基本身含潜在权益敞口（≤20%）</td></tr>
+            <tr><td>纯债基金</td><td>基金持仓中分类为"纯债基金"的市值之和</td></tr>
+            <tr><td>货币基金</td><td>基金持仓中分类为"货币基金"的市值之和</td></tr>
+            <tr><td>债权类资产占比(%)</td><td>= (Σ(每只基金市值×财汇数据源实际债券仓位) + 活期存款 + 结算备付金 + 逆回购 + 直投债券) ÷ 资产合计 × 100%</td></tr>
+            <tr><td>单一资产最大持仓市值</td><td>该产品所有持仓（基金+股票+转债）中市值最大的一笔</td></tr>
+            <tr><td>单一资产最大持仓集中度</td><td>= 单一资产最大持仓市值 ÷ 资产净值 × 100%。监管要求单只证券 ≤ 净资产的 10%</td></tr>
+            <tr><td>实际权益风险敞口</td><td>= 与穿透权益敞口分子相同，分母为资产净值，用于监管限额监控</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:20px;font-size:11px;color:var(--text-muted);">
+          <b>穿透仓位来源</b>：基金的权益仓位和债券仓位数据均来自财汇数据源（最新季报口径），按每只基金的实际持仓占比加权计算穿透后权益敞口和债权敞口。</p>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- NAV Detail Page -->
+  <main class="main" id="page-nav-detail" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <button class="btn" onclick="switchPage('nav')">返回净值列表</button>
+      <div>
+        <h2 class="page-title" id="navDetailTitle">产品历史净值</h2>
+        <p class="page-subtitle" id="navDetailSubtitle"></p>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-body" id="navDetailTable" style="max-height:calc(100vh - 200px);"></div>
+      <div class="pagination" id="navDetailPagination"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Email Modal -->
+<div class="modal-overlay" id="emailModal">
+  <div class="modal">
+    <h3>自动拉取估值表</h3>
+    <p>系统将通过 IMAP 协议自动连接指定邮箱，下载并解析估值表附件</p>
+    <div class="email-steps" id="emailSteps">
+      <div class="email-step" id="step1">
+        <div class="email-step-icon wait">1</div>
+        <div>连接邮件服务器 (imap.hengfeng.com:993)</div>
+      </div>
+      <div class="email-step" id="step2">
+        <div class="email-step-icon wait">2</div>
+        <div>扫描收件箱，筛选估值表邮件 (日期: 2026-06-17)</div>
+      </div>
+      <div class="email-step" id="step3">
+        <div class="email-step-icon wait">3</div>
+        <div>下载附件 · 解析 Excel/PDF 估值表</div>
+      </div>
+      <div class="email-step" id="step4">
+        <div class="email-step-icon wait">4</div>
+        <div>结构化提取：净值、杠杆、资产比例、集中度</div>
+      </div>
+      <div class="email-step" id="step5">
+        <div class="email-step-icon wait">5</div>
+        <div>穿透计算完成 · 10 份估值表已入库</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn" onclick="closeEmailModal()">取消</button>
+      <button class="btn btn-primary" id="btnFetch" onclick="simulateFetch()">开始拉取</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+const fundDetails = [["中诚信托-乐享1号集合", "043101", "永赢科技驱动C", "场外", "混合类基金", 10392333.5],["中诚信托-乐享1号集合", "043101", "大成科技创新混合C", "场外", "混合类基金", 185425778.03],["中诚信托-乐享1号集合", "043101", "中欧量化动能混合A", "场外", "混合类基金", 20103852.62],["中诚信托-乐享1号集合", "043101", "中欧价值精选混合C", "场外", "混合类基金", 28076052.21],["中诚信托-乐享1号集合", "043101", "南方中证500ETF", "场内", "权益类基金", 7990979.7],["中诚信托-乐享1号集合", "043301", "易方达中证科创创业50ETF", "场内", "权益类基金", 10827211.2],["中诚信托-乐享1号集合", "043301", "华夏中证科创创业50ETF", "场内", "权益类基金", 35116449.18],["中诚信托-乐享1号集合", "043301", "化工ETF", "场内", "权益类基金", 9761037.0],["中诚信托-乐享1号集合", "043301", "易方达创业板ETF", "场内", "权益类基金", 21104908.2],["中诚信托-乐享1号集合", "043301", "华宝中证全指证券公司ETF", "场内", "权益类基金", 59955559.4],["中诚信托-乐享1号集合", "043301", "国泰中证全指证券公司ETF", "场内", "权益类基金", 113275395.6],["中欧基金鑫益3号集合", "510330.SH", "华夏沪深300ETF", "场内", "权益类基金", 4042129.0],["中欧基金鑫益3号集合", "510880.SH", "华泰柏瑞上证红利ETF", "场内", "权益类基金", 194340.0],["中欧基金鑫益3号集合", "515210.SH", "国泰中证钢铁ETF", "场内", "权益类基金", 308041.3],["中欧基金鑫益3号集合", "516520.SH", "华泰柏瑞中证智能汽车主题ETF", "场内", "权益类基金", 324594.4],["中欧基金鑫益3号集合", "560280.SH", "广发中证工程机械ETF", "场内", "权益类基金", 793155.0],["中欧基金鑫益3号集合", "561380.SH", "国泰恒生A股电网设备ETF", "场内", "权益类基金", 80157.0],["中欧基金鑫益3号集合", "588020.SH", "易方达上证科创板成长ETF", "场内", "权益类基金", 214502.4],["中欧基金鑫益3号集合", "588030.SH", "博时科创100ETF", "场内", "权益类基金", 211082.9],["中欧基金鑫益3号集合", "511110.SH", "易方达上证基准做市公司债ETF", "场内", "债券ETF", 17966025.0],["中欧基金鑫益3号集合", "511130.SH", "博时上证30年期国债ETF", "场内", "债券ETF", 15939916.3],["中欧基金鑫益3号集合", "511200.SH", "华夏上证基准做市公司债ETF", "场内", "债券ETF", 15970005.5],["中欧基金鑫益3号集合", "511220.SH", "海富通上证城投债ETF", "场内", "债券ETF", 18045170.7],["中欧基金鑫益3号集合", "511520.SH", "富国中债7-10年政策性金融债ETF", "场内", "债券ETF", 12993781.2],["中欧基金鑫益3号集合", "159259.SZ", "易方达国证成长100ETF", "场内", "权益类基金", 209451.0],["中欧基金鑫益3号集合", "159326.SZ", "华夏中证电网设备主题ETF", "场内", "权益类基金", 399966.0],["中欧基金鑫益3号集合", "159338.SZ", "国泰中证A500ETF", "场内", "权益类基金", 202487.4],["中欧基金鑫益3号集合", "159516.SZ", "国泰中证半导体材料设备主题ETF", "场内", "权益类基金", 429189.9],["中欧基金鑫益3号集合", "159558.SZ", "易方达中证半导体材料设备主题ETF", "场内", "权益类基金", 431306.8],["中欧基金鑫益3号集合", "159572.SZ", "易方达创业板200ETF", "场内", "权益类基金", 201782.1],["中欧基金鑫益3号集合", "159732.SZ", "华夏国证消费电子主题ETF", "场内", "权益类基金", 170841.0],["中欧基金鑫益3号集合", "159755.SZ", "广发国证新能源车电池ETF", "场内", "权益类基金", 159894.0],["中欧基金鑫益3号集合", "159766.SZ", "富国中证旅游主题ETF", "场内", "权益类基金", 157586.0],["中欧基金鑫益3号集合", "159930.SZ", "汇添富中证能源ETF", "场内", "权益类基金", 472324.6],["中欧基金鑫益3号集合", "159934.SZ", "易方达黄金ETF", "场内", "商品基金(权益类)", 2041697.4],["中欧基金鑫益3号集合", "159996.SZ", "国泰中证全指家用电器ETF", "场内", "权益类基金", 318773.0],["光证资管丰益1号集合", "511180.SH", "海富通上证投资级可转债ETF", "场内", "转债基金", 2837120.0],["光证资管丰益1号集合", "001752", "华商信用增强债券C", "场外", "二级债基", 5854450.0],["光证资管丰益1号集合", "013149", "鹏华双债加利债券C", "场外", "二级债基", 4797538.92],["光证资管丰益1号集合", "016367", "嘉实多利收益债券C", "场外", "二级债基", 9949567.89],["光证资管丰益1号集合", "018596", "华商利欣回报债券C", "场外", "二级债基", 4306530.83],["光证资管丰益1号集合", "018747", "永赢匠心增利债券C", "场外", "二级债基", 1600000.0],["光证资管丰益1号集合", "020219", "万家锦利债券发起式C", "场外", "二级债基", 3050309.66],["陕国投·鑫瑞17号证券投资集合", "043301", "海富通中证短融ETF", "场内", "债券ETF", 6097688.7],["陕国投·鑫瑞17号证券投资集合", "043301", "华泰柏瑞中证红利低波动ETF", "场内", "权益类基金", 185592.0],["陕国投·鑫瑞1号证券投资集合", "043101", "华安易富黄金ETF联接C", "场内", "商品基金(权益类)", 4504645.29],["陕国投·鑫瑞1号证券投资集合", "043101", "中欧潜力价值灵活配置混合A", "场外", "混合类基金", 36148612.48],["陕国投·鑫瑞1号证券投资集合", "043101", "永赢科技驱动C", "场外", "混合类基金", 9791204.56],["陕国投·鑫瑞1号证券投资集合", "043101", "大成科技创新混合C", "场外", "混合类基金", 46356444.48],["陕国投·鑫瑞1号证券投资集合", "043101", "万家国证新能源车电池ETF发起式联接C", "场内", "权益类基金", 9466093.67],["陕国投·鑫瑞1号证券投资集合", "043101", "中欧资源精选混合发起C", "场外", "混合类基金", 36566303.64],["陕国投·鑫瑞1号证券投资集合", "043101", "华夏国证自由现金流ETF发起式联接A", "场内", "权益类基金", 17481558.82],["兴业信托", "512040", "国信价值", "场外", "?", 954941.5],["兴业信托", "517520", "黄金股", "场外", "?", 928670.1],["兴业信托", "159201", "自由现金流ETF华夏", "场内", "权益类基金", 9565573.5],["兴业信托", "159221", "现金流ETF嘉实", "场内", "权益类基金", 18203784.3],["兴业信托", "159783", "科创创业50ETF华夏", "场内", "权益类基金", 10779628.5],["兴业信托", "159980", "有色ETF", "场内", "商品基金(权益类)", 14668884.0],["兴业信托", "000217", "华安易富黄金ETF联接C", "场内", "商品基金(权益类)", 9101607.33],["兴业信托", "005443", "国金量化多策略灵活配置混合A", "场外", "混合类基金", 14787982.2],["兴业信托", "007191", "富国中证价值ETF联接C", "场内", "权益类基金", 9449974.04],["兴业信托", "007413", "长城中证500指数增强C", "场外", "权益类基金", 4847122.3],["兴业信托", "008989", "大成科技创新混合C", "场外", "混合类基金", 21016662.01],["兴业信托", "015881", "中欧小盘成长混合C", "场外", "混合类基金", 9655800.77],["兴业信托", "016050", "华商高端装备制造股票C", "场外", "权益类基金", 2692168.66],["兴业信托", "016486", "中欧成长先锋混合C", "场外", "混合类基金", 11027649.77],["兴业信托", "016556", "万家量化睿选灵活配置混合C", "场外", "混合类基金", 3197877.86],["兴业信托", "017874", "国金量化多策略灵活配置混合C", "场外", "混合类基金", 26023927.39],["兴业信托", "018824", "国金智享量化选股混合C", "场外", "混合类基金", 43685326.22],["兴业信托", "019405", "华夏中证全指运输ETF联接C", "场内", "权益类基金", 3723144.49],["兴业信托", "021523", "财通价值动量混合C", "场外", "混合类基金", 1297364.77],["兴业信托", "023918", "华夏国证自由现金流ETF联接C", "场内", "权益类基金", 8845210.73],["兴业信托", "024434", "嘉实成长共赢混合C", "场外", "混合类基金", 2219676.01],["兴业信托", "024617", "大成中证全指自由现金流ETF联接C", "场内", "权益类基金", 27236649.89],["兴业信托", "025542", "华夏行业景气混合C", "场外", "混合类基金", 2087935.7],["兴业信托", "025657", "国金智远量化选股混合C", "场外", "混合类基金", 28583524.65],["兴业信托", "026164", "英大上证科创板综合指数增强C", "场外", "权益类基金", 5874936.71],["兴业信托", "026815", "兴全创业板综指增强C", "场外", "权益类基金", 5008520.79],["兴业信托", "512000", "券商ETF", "场内", "权益类基金", 1029864.0],["兴业信托", "512660", "军工ETF", "场内", "权益类基金", 928982.3],["兴业信托", "518880", "黄金ETF", "场内", "商品基金(权益类)", 13703314.3]];
+const stockDetails = [["中欧基金鑫益2号集合", "600183.SH", "生益科技", 378315.0],["中欧基金鑫益2号集合", "600233.SH", "圆通速递", 144768.0],["中欧基金鑫益2号集合", "600236.SH", "桂冠电力", 175599.0],["中欧基金鑫益2号集合", "600323.SH", "瀚蓝环境", 164445.0],["中欧基金鑫益2号集合", "600356.SH", "恒丰纸业", 150405.0],["中欧基金鑫益2号集合", "600426.SH", "华鲁恒升", 131200.0],["中欧基金鑫益2号集合", "600549.SH", "厦门钨业", 250604.0],["中欧基金鑫益2号集合", "600584.SH", "长电科技", 384272.0],["中欧基金鑫益2号集合", "600961.SH", "株冶集团", 173550.0],["中欧基金鑫益2号集合", "600980.SH", "北矿科技", 167480.0],["中欧基金鑫益2号集合", "600988.SH", "赤峰黄金", 139750.0],["中欧基金鑫益2号集合", "601138.SH", "工业富联", 762720.0],["中欧基金鑫益2号集合", "601318.SH", "中国平安", 68588.0],["中欧基金鑫益2号集合", "601872.SH", "招商轮船", 177840.0],["中欧基金鑫益2号集合", "601899.SH", "紫金矿业", 161279.0],["中欧基金鑫益2号集合", "603038.SH", "华立股份", 178821.0],["中欧基金鑫益2号集合", "603066.SH", "音飞储存", 169855.0],["中欧基金鑫益2号集合", "603125.SH", "常青科技", 235720.0],["中欧基金鑫益2号集合", "603132.SH", "金徽股份", 172458.0],["中欧基金鑫益2号集合", "603162.SH", "海通发展", 167278.16],["中欧基金鑫益2号集合", "603223.SH", "恒通股份", 174636.0],["中欧基金鑫益2号集合", "603588.SH", "高能环境", 193875.0],["中欧基金鑫益2号集合", "603606.SH", "东方电缆", 146314.6],["中欧基金鑫益2号集合", "603799.SH", "华友钴业", 147252.0],["中欧基金鑫益2号集合", "603928.SH", "兴业股份", 178308.0],["中欧基金鑫益2号集合", "603929.SH", "亚翔集成", 208962.0],["中欧基金鑫益2号集合", "605060.SH", "联德股份", 141456.0],["中欧基金鑫益2号集合", "688002.SH", "睿创微纳", 779301.0],["中欧基金鑫益2号集合", "688041.SH", "海光信息", 372021.54],["中欧基金鑫益2号集合", "688111.SH", "金山办公", 363857.0],["中欧基金鑫益2号集合", "688127.SH", "蓝特光学", 236709.25],["中欧基金鑫益2号集合", "688230.SH", "芯导科技", 289826.88],["中欧基金鑫益2号集合", "688256.SH", "寒武纪", 744480.0],["中欧基金鑫益2号集合", "688380.SH", "中微半导", 187381.59],["中欧基金鑫益2号集合", "688608.SH", "恒玄科技", 683661.12],["中欧基金鑫益2号集合", "000408.SZ", "藏格矿业", 162078.0],["中欧基金鑫益2号集合", "000426.SZ", "兴业银锡", 170562.0],["中欧基金鑫益2号集合", "000551.SZ", "创元科技", 179478.0],["中欧基金鑫益2号集合", "000567.SZ", "海德股份", 160080.0],["中欧基金鑫益2号集合", "000612.SZ", "焦作万方", 154677.0],["中欧基金鑫益2号集合", "000685.SZ", "中山公用", 173445.0],["中欧基金鑫益2号集合", "000729.SZ", "燕京啤酒", 144348.0],["中欧基金鑫益2号集合", "000792.SZ", "盐湖股份", 145089.0],["中欧基金鑫益2号集合", "000807.SZ", "云铝股份", 145000.0],["中欧基金鑫益2号集合", "001218.SZ", "丽臣实业", 182508.0],["中欧基金鑫益2号集合", "001256.SZ", "炜冈科技", 197197.0],["中欧基金鑫益2号集合", "001286.SZ", "陕西能源", 177161.0],["中欧基金鑫益2号集合", "001337.SZ", "四川黄金", 139008.0],["中欧基金鑫益2号集合", "001368.SZ", "通达创智", 139419.0],["中欧基金鑫益2号集合", "002033.SZ", "丽江股份", 174501.0],["中欧基金鑫益2号集合", "002064.SZ", "华峰化学", 168640.0],["中欧基金鑫益2号集合", "002128.SZ", "电投能源", 138852.0],["中欧基金鑫益2号集合", "002353.SZ", "杰瑞股份", 977430.0],["中欧基金鑫益2号集合", "002384.SZ", "东山精密", 436764.0],["中欧基金鑫益2号集合", "002415.SZ", "海康威视", 168272.0],["中欧基金鑫益2号集合", "002440.SZ", "闰土股份", 183744.0],["中欧基金鑫益2号集合", "002463.SZ", "沪电股份", 219825.0],["中欧基金鑫益2号集合", "002468.SZ", "申通快递", 154926.0],["中欧基金鑫益2号集合", "002532.SZ", "天山铝业", 139305.0],["中欧基金鑫益2号集合", "002606.SZ", "大连电瓷", 174000.0],["中欧基金鑫益2号集合", "002772.SZ", "众兴菌业", 152280.0],["中欧基金鑫益2号集合", "002838.SZ", "道恩股份", 194880.0],["中欧基金鑫益2号集合", "002841.SZ", "视源股份", 171500.0],["中欧基金鑫益2号集合", "002916.SZ", "深南电路", 266562.0],["中欧基金鑫益2号集合", "002946.SZ", "新乳业", 138510.0],["中欧基金鑫益2号集合", "002956.SZ", "西麦食品", 168099.2],["中欧基金鑫益2号集合", "300037.SZ", "新宙邦", 223652.0],["中欧基金鑫益2号集合", "300054.SZ", "鼎龙股份", 236938.0],["中欧基金鑫益2号集合", "300137.SZ", "先河环保", 377316.0],["中欧基金鑫益2号集合", "300308.SZ", "中际旭创", 1403721.0],["中欧基金鑫益2号集合", "300394.SZ", "天孚通信", 599380.6],["中欧基金鑫益2号集合", "300398.SZ", "飞凯材料", 253422.0],["中欧基金鑫益2号集合", "300476.SZ", "胜宏科技", 108510.0],["中欧基金鑫益2号集合", "300661.SZ", "圣邦股份", 578820.0],["中欧基金鑫益2号集合", "300919.SZ", "中伟新材", 137956.0],["中欧基金鑫益2号集合", "301055.SZ", "张小泉", 263274.0],["中欧基金鑫益2号集合", "301087.SZ", "可孚医疗", 165168.0],["中欧基金鑫益2号集合", "301338.SZ", "凯格精机", 250573.4],["中欧基金鑫益2号集合", "301568.SZ", "思泰克", 332543.0],["中欧基金鑫益3号集合", "688121.SH", "卓然股份", 50945.76],["陕国投·鑫瑞17号证券投资集合", "010101", "浦发银行", 348348.0],["陕国投·鑫瑞17号证券投资集合", "010101", "首创环保", 283228.0],["陕国投·鑫瑞17号证券投资集合", "010101", "华夏银行", 491722.0],["陕国投·鑫瑞17号证券投资集合", "010101", "民生银行", 411180.0],["陕国投·鑫瑞17号证券投资集合", "010101", "日照港", 165360.0],["陕国投·鑫瑞17号证券投资集合", "010101", "上港集团", 296709.0],["陕国投·鑫瑞17号证券投资集合", "010101", "XD中国石", 355990.0],["陕国投·鑫瑞17号证券投资集合", "010101", "福建高速", 284871.0],["陕国投·鑫瑞17号证券投资集合", "010101", "招商银行", 435822.0],["陕国投·鑫瑞17号证券投资集合", "010101", "国投资本", 209264.0],["陕国投·鑫瑞17号证券投资集合", "010101", "南京高科", 342160.0],["陕国投·鑫瑞17号证券投资集合", "010101", "铁龙物流", 184280.0],["陕国投·鑫瑞17号证券投资集合", "010101", "雅戈尔", 477394.0],["陕国投·鑫瑞17号证券投资集合", "010101", "瀚蓝环境", 248110.0],["陕国投·鑫瑞17号证券投资集合", "010101", "白云山", 280763.0],["陕国投·鑫瑞17号证券投资集合", "010101", "山东高速", 288036.0],["陕国投·鑫瑞17号证券投资集合", "010101", "浙江龙盛", 293020.0],["陕国投·鑫瑞17号证券投资集合", "010101", "宁沪高速", 311040.0],["陕国投·鑫瑞17号证券投资集合", "010101", "健康元", 153546.0],["陕国投·鑫瑞17号证券投资集合", "010101", "洪城环境", 361845.0],["陕国投·鑫瑞17号证券投资集合", "010101", "北大荒", 55760.0],["陕国投·鑫瑞17号证券投资集合", "010101", "川投能源", 228228.0],["陕国投·鑫瑞17号证券投资集合", "010101", "海尔智家", 383163.0],["陕国投·鑫瑞17号证券投资集合", "010101", "南京医药", 292236.0],["陕国投·鑫瑞17号证券投资集合", "010101", "隧道股份", 330270.0],["陕国投·鑫瑞17号证券投资集合", "010101", "国投电力", 283716.0],["陕国投·鑫瑞17号证券投资集合", "010101", "伊利股份", 456395.0],["陕国投·鑫瑞17号证券投资集合", "010101", "厦门空港", 204120.0],["陕国投·鑫瑞17号证券投资集合", "010101", "长江电力", 305100.0],["陕国投·鑫瑞17号证券投资集合", "010101", "江苏金租", 400568.0],["陕国投·鑫瑞17号证券投资集合", "010101", "无锡银行", 340704.0],["陕国投·鑫瑞17号证券投资集合", "010101", "江苏银行", 415080.0],["陕国投·鑫瑞17号证券投资集合", "010101", "杭州银行", 329600.0],["陕国投·鑫瑞17号证券投资集合", "010101", "西安银行", 208143.0],["陕国投·鑫瑞17号证券投资集合", "010101", "中国移动", 381218.0],["陕国投·鑫瑞17号证券投资集合", "010101", "招商证券", 284590.0],["陕国投·鑫瑞17号证券投资集合", "010101", "大秦铁路", 286925.0],["陕国投·鑫瑞17号证券投资集合", "010101", "南京银行", 404382.0],["陕国投·鑫瑞17号证券投资集合", "010101", "宁波港", 265196.0],["陕国投·鑫瑞17号证券投资集合", "010101", "渝农商行", 385140.0],["陕国投·鑫瑞17号证券投资集合", "010101", "财通证券", 189908.0],["陕国投·鑫瑞17号证券投资集合", "010101", "常熟银行", 316013.0],["陕国投·鑫瑞17号证券投资集合", "010101", "兴业银行", 456704.0],["陕国投·鑫瑞17号证券投资集合", "010101", "北京银行", 425078.0],["陕国投·鑫瑞17号证券投资集合", "010101", "厦门银行", 341824.0],["陕国投·鑫瑞17号证券投资集合", "010101", "国泰海通", 266550.0],["陕国投·鑫瑞17号证券投资集合", "010101", "上海银行", 455906.0],["陕国投·鑫瑞17号证券投资集合", "010101", "农业银行", 321276.0],["陕国投·鑫瑞17号证券投资集合", "010101", "青岛港", 274134.0],["陕国投·鑫瑞17号证券投资集合", "010101", "中国平安", 464288.0],["陕国投·鑫瑞17号证券投资集合", "010101", "中国人保", 273700.0],["陕国投·鑫瑞17号证券投资集合", "010101", "秦港股份", 238995.0],["陕国投·鑫瑞17号证券投资集合", "010101", "交通银行", 398820.0],["陕国投·鑫瑞17号证券投资集合", "010101", "工商银行", 343712.0],["陕国投·鑫瑞17号证券投资集合", "010101", "长沙银行", 366210.0],["陕国投·鑫瑞17号证券投资集合", "010101", "上海医药", 264204.0],["陕国投·鑫瑞17号证券投资集合", "010101", "邮储银行", 354078.0],["陕国投·鑫瑞17号证券投资集合", "010101", "中国建筑", 388806.0],["陕国投·鑫瑞17号证券投资集合", "010101", "中国中车", 335205.0],["陕国投·鑫瑞17号证券投资集合", "010101", "京沪高铁", 204809.0],["陕国投·鑫瑞17号证券投资集合", "010101", "光大银行", 441630.0],["陕国投·鑫瑞17号证券投资集合", "010101", "沪农商行", 390135.0],["陕国投·鑫瑞17号证券投资集合", "010101", "成都银行", 401907.0],["陕国投·鑫瑞17号证券投资集合", "010101", "紫金银行", 270918.0],["陕国投·鑫瑞17号证券投资集合", "010101", "辽港股份", 142424.0],["陕国投·鑫瑞17号证券投资集合", "010101", "浙商银行", 373312.0],["陕国投·鑫瑞17号证券投资集合", "010101", "建设银行", 313017.0],["陕国投·鑫瑞17号证券投资集合", "010101", "苏垦农发", 177984.0],["陕国投·鑫瑞17号证券投资集合", "010101", "重庆银行", 299516.0],["陕国投·鑫瑞17号证券投资集合", "010101", "中国银行", 308880.0],["陕国投·鑫瑞17号证券投资集合", "010101", "贵阳银行", 395622.0],["陕国投·鑫瑞17号证券投资集合", "010101", "中信银行", 400680.0],["陕国投·鑫瑞17号证券投资集合", "010101", "苏农银行", 333600.0],["陕国投·鑫瑞17号证券投资集合", "013101", "平安银行", 454916.0],["陕国投·鑫瑞17号证券投资集合", "013101", "盐 田 港", 337307.0],["陕国投·鑫瑞17号证券投资集合", "013101", "深圳机场", 207036.0],["陕国投·鑫瑞17号证券投资集合", "013101", "申万宏源", 226215.0],["陕国投·鑫瑞17号证券投资集合", "013101", "美的集团", 388178.0],["陕国投·鑫瑞17号证券投资集合", "013101", "粤高速Ａ", 329148.0],["陕国投·鑫瑞17号证券投资集合", "013101", "丽珠集团", 321332.0],["陕国投·鑫瑞17号证券投资集合", "013101", "云南白药", 430408.0],["陕国投·鑫瑞17号证券投资集合", "013101", "兴蓉环境", 240468.0],["陕国投·鑫瑞17号证券投资集合", "013101", "吉林敖东", 427130.0],["陕国投·鑫瑞17号证券投资集合", "013101", "格力电器", 557250.0],["陕国投·鑫瑞17号证券投资集合", "013101", "一汽解放", 117688.0],["陕国投·鑫瑞17号证券投资集合", "013101", "双汇发展", 477135.0],["陕国投·鑫瑞17号证券投资集合", "013101", "陕西能源", 279415.0],["陕国投·鑫瑞17号证券投资集合", "013101", "招商公路", 308700.0],["陕国投·鑫瑞17号证券投资集合", "013101", "珠江啤酒", 152574.0],["陕国投·鑫瑞17号证券投资集合", "013101", "山西证券", 216522.0],["陕国投·鑫瑞17号证券投资集合", "013101", "国信证券", 366100.0],["陕国投·鑫瑞17号证券投资集合", "013101", "江阴银行", 391445.0],["陕国投·鑫瑞17号证券投资集合", "013101", "张家港行", 408496.0],["陕国投·鑫瑞17号证券投资集合", "013101", "青岛银行", 308118.0],["陕国投·鑫瑞17号证券投资集合", "013101", "青农商行", 358644.0],["陕国投·鑫瑞17号证券投资集合", "013101", "苏州银行", 381600.0],["陕国投·鑫瑞17号证券投资集合", "013101", "中国广核", 146231.0],["陕国投·鑫瑞17号证券投资集合", "688009", "中国通号", 308640.48],["尚摩增盈集合", "600029.SH", "南方航空", 6558530.0],["尚摩增盈集合", "600115.SH", "中国东航", 4952304.0],["尚摩增盈集合", "600415.SH", "小商品城", 5555825.0],["尚摩增盈集合", "600893.SH", "航发动力", 1684386.0],["尚摩增盈集合", "600984.SH", "建设机械", 2803860.0],["尚摩增盈集合", "601058.SH", "赛轮轮胎", 12520980.0],["尚摩增盈集合", "601111.SH", "中国国航", 5795826.0],["尚摩增盈集合", "601567.SH", "三星电气", 3654288.0],["尚摩增盈集合", "601965.SH", "中国汽研", 5943821.0],["尚摩增盈集合", "603062.SH", "麦加芯彩", 4082040.0],["尚摩增盈集合", "603102.SH", "百合股份", 3145509.0],["尚摩增盈集合", "603556.SH", "海兴电力", 1840188.0],["尚摩增盈集合", "603713.SH", "密尔克卫", 8981275.0],["尚摩增盈集合", "605098.SH", "行动教育", 9038848.0],["尚摩增盈集合", "688029.SH", "南微医学", 3498909.48],["尚摩增盈集合", "688036.SH", "传音控股", 10550482.32],["尚摩增盈集合", "688083.SH", "中望软件", 649.1],["尚摩增盈集合", "688208.SH", "道通科技", 6127080.15],["尚摩增盈集合", "688466.SH", "金科环境", 6146009.73],["尚摩增盈集合", "688789.SH", "宏华数科", 867301.14],["尚摩增盈集合", "000423.SZ", "东阿阿胶", 757120.0],["尚摩增盈集合", "000513.SZ", "丽珠集团", 1450416.0],["尚摩增盈集合", "002209.SZ", "达 意 隆", 5577558.0],["尚摩增盈集合", "002311.SZ", "海大集团", 3359664.0],["尚摩增盈集合", "002659.SZ", "凯文教育", 717570.0],["尚摩增盈集合", "002810.SZ", "山东赫达", 5576430.0],["尚摩增盈集合", "002841.SZ", "视源股份", 2523500.0],["尚摩增盈集合", "002858.SZ", "力盛体育", 5752360.0],["尚摩增盈集合", "002891.SZ", "中宠股份", 1717380.0],["尚摩增盈集合", "002946.SZ", "新乳业", 5657364.0],["尚摩增盈集合", "300161.SZ", "华中数控", 5070298.0],["尚摩增盈集合", "300662.SZ", "科锐国际", 3556320.0],["尚摩增盈集合", "300679.SZ", "电连技术", 39786.0],["尚摩增盈集合", "300791.SZ", "仙乐健康", 6457264.0],["尚摩增盈集合", "300858.SZ", "科拓生物", 2171862.84],["尚摩增盈集合", "301035.SZ", "润丰股份", 10652500.0],["尚摩增盈集合", "301080.SZ", "百普赛斯", 6517114.0],["尚摩增盈集合", "301498.SZ", "乖宝宠物", 4985600.0],["金元顺安恒丰集合", "016001", "中国船舶", 676130.0],["金元顺安恒丰集合", "016001", "福田汽车", 1070328.0],["金元顺安恒丰集合", "016004", "国电南瑞", 426756.0],["金元顺安恒丰集合", "016004", "北方导航", 508464.0],["金元顺安恒丰集合", "016004", "中国动力", 1029078.0],["金元顺安恒丰集合", "016008", "航发动力", 728706.0],["金元顺安恒丰集合", "000063", "中兴通讯", 801732.0],["金元顺安恒丰集合", "000100", "TCL科技", 902144.0],["金元顺安恒丰集合", "002415", "海康威视", 1077588.0],["金元顺安恒丰集合", "300223", "北京君正", 1150390.0],["金元顺安恒丰集合", "300308", "中际旭创", 510444.0],["金元顺安恒丰集合", "300750", "宁德时代", 598500.0],["金元顺安恒丰集合", "688188", "柏楚电子", 535593.5]];
+const cbDetails = [["20260617_(SAYJ74)一创ESG整合债", "110084", "贵燃转债", 1957590.0],["20260617_(SAYJ74)一创ESG整合债", "110099", "福能转债", 7246050.0],["20260617_(SAYJ74)一创ESG整合债", "113056", "重银转债", 4445315.0],["20260617_(SAYJ74)一创ESG整合债", "113632", "鹤21转债", 7584700.0],["20260617_(SAYJ74)一创ESG整合债", "118024", "冠宇转债", 6650892.45],["20260617_(SAYJ74)一创ESG整合债", "118063", "金05转债", 9401150.0],["20260617_(SAYJ74)一创ESG整合债", "123091", "长海转债", 10081350.0],["20260617_(SAYJ74)一创ESG整合债", "123158", "宙邦转债", 14170650.0],["20260617_(SAYJ74)一创ESG整合债", "123259", "锦浪转02", 10371847.74],["20260617_(SAYJ74)一创ESG整合债", "127070", "大中转债", 14083616.0],["20260617_(SAYJ74)一创ESG整合债", "127109", "电化转债", 11599900.0],["20260617_(SAYJ74)一创ESG整合债", "127112", "尚太转债", 5028480.0]];
+
+// ===== Data from actual scan =====
+const productData = [
+  {name:"中诚信托-乐享1号", date:"2026-06-17", nav:1.078468, assets:770409240, liab:412413, net:769996827, leverage:1.0005, stock:0, eqFund:258031540, hybFund:243998016, commodity:0, cb:0, cbFund:0, secBond:0, pureBond:0, money:0, bondETF:0, other:0, maxSingle:185425778, deposit:191710321, reserve:426699, repo:48000240,code:"ZXCT-LX01"},
+  {name:"一创ESG整合债券12号", date:"2026-06-17", nav:1.0452, assets:2925405720, liab:534122351, net:2391283370, leverage:1.2234, stock:0, eqFund:0, hybFund:0, commodity:0, cb:102621541, cbFund:0, secBond:0, pureBond:0, money:0, bondETF:0, other:0, maxSingle:14170650, deposit:292385680, reserve:12417893, repo:312602451,code:"SAYJ74"},
+  {name:"中欧基金鑫益2号",code:"600581", date:"2026-06-17", nav:1.0132, assets:203506241, liab:7739176, net:195767065, leverage:1.0395, stock:20432403, eqFund:0, hybFund:0, commodity:0, cb:0, cbFund:0, secBond:0, pureBond:0, money:0, bondETF:0, other:0, maxSingle:1403721, deposit:1024307, reserve:14693785, repo:160070000},
+  {name:"中欧基金鑫益3号",code:"600593", date:"2026-06-17", nav:1.0008, assets:105766238, liab:5980790, net:99785448, leverage:1.0599, stock:50946, eqFund:75363928, hybFund:16914272, commodity:0, cb:0, cbFund:0, secBond:0, pureBond:0, money:0, bondETF:0, other:0, maxSingle:35116449, deposit:13302223, reserve:312474, repo:0},
+  {name:"光证资管丰益1号",code:"865896", date:"2026-06-17", nav:1.0537, assets:737945733, liab:99408011, net:638537722, leverage:1.1557, stock:0, eqFund:0, hybFund:0, commodity:0, cb:0, cbFund:2837120, secBond:26508088, pureBond:3050310, money:0, bondETF:0, other:0, maxSingle:9949568, deposit:1912825, reserve:2, repo:0},
+  {name:"陕国投-鑫瑞17号", date:"2026-06-17", nav:0.993861, assets:41433851, liab:7540, net:41426311, leverage:1.0002, stock:31533763, eqFund:0, hybFund:0, commodity:0, cb:0, cbFund:0, secBond:0, pureBond:0, money:0, bondETF:0, other:0, maxSingle:25510, deposit:615, reserve:5701, repo:3230003,code:"SGT-XR17"},
+  {name:"陕国投-鑫瑞1号", date:"2026-06-17", nav:1.002924, assets:169205197, liab:33225, net:169171972, leverage:1.0002, stock:0, eqFund:6647649, hybFund:0, commodity:0, cb:0, cbFund:0, secBond:0, pureBond:0, money:0, bondETF:0, other:0, maxSingle:6356444, deposit:4706343, reserve:54, repo:0,code:"SGT-XR01"},
+  {name:"尚摩增盈", date:"2026-06-17", nav:0.9845, assets:927948071, liab:460479, net:927487592, leverage:1.0005, stock:176288219, eqFund:0, hybFund:0, commodity:0, cb:0, cbFund:0, secBond:0, pureBond:0, money:0, bondETF:0, other:0, maxSingle:185247, deposit:8865361, reserve:411323, repo:30001192,code:"371311"},
+  {name:"兴业信托-安福盈利1号", date:"2026-06-17", nav:0.97904, assets:324643932, liab:19243, net:324624688, leverage:1.0001, stock:0, eqFund:234139547, hybFund:76987158, commodity:0, cb:0, cbFund:0, secBond:0, pureBond:0, money:0, bondETF:0, other:0, maxSingle:18203784, deposit:5239997, reserve:902605, repo:0,code:"XYXT-AFYL01"},
+  {name:"金元顺安恒丰", date:"2026-06-17", nav:1.2394, assets:23487754, liab:519649, net:22968105, leverage:1.0226, stock:10015854, eqFund:0, hybFund:4114, commodity:0, cb:0, cbFund:0, secBond:0, pureBond:0, money:0, bondETF:0, other:0, maxSingle:102196, deposit:404125, reserve:538393, repo:10300000,code:"JYSA-HF"},
+];
+
+function fmt(n) {
+  if (!n || n === 0) return '<span class="num-zero">—</span>';
+  return n.toLocaleString('zh-CN',{maximumFractionDigits:0});
+}
+function fmtRaw(n) { return n ? n.toLocaleString('zh-CN',{maximumFractionDigits:0}) : '0'; }
+function fmtPct(n) { return n ? (n*100).toFixed(2)+'%' : '0.00%'; }
+function fmtNAV(n) { return n ? n.toFixed(6) : '—'; }
+
+function cellBar(pct, type) {
+  if (!pct || pct < 0.001) return '';
+  const w = Math.min(pct * 100, 100);
+  return `<span class="cell-bar"><span class="cell-bar-fill ${type}" style="width:${w}%"></span></span>`;
+}
+
+// Render product table
+const PRODUCT_PAGE_SIZE = 20;
+let productPage = 1;
+let sortKey = null;
+let sortDir = 1;
+
+function renderTable() {
+  productPage = Math.min(productPage, Math.ceil(productData.length / PRODUCT_PAGE_SIZE)) || 1;
+
+  const sorted = [...productData];
+  if (sortKey) {
+    sorted.sort((a,b) => {
+      let va = sortKey(a), vb = sortKey(b);
+      if (typeof va === 'string') va = va.localeCompare(vb);
+      else va = (va||0) - (vb||0);
+      return va * sortDir;
+    });
+  }
+
+  const start = (productPage-1) * PRODUCT_PAGE_SIZE;
+  const page = sorted.slice(start, start + PRODUCT_PAGE_SIZE);
+
+  const headerDefs = [
+    {label:'产品名称', sortable:false},
+    {label:'代码', sortable:false},
+    {label:'估值日期', sortable:false},
+    {label:'单位净值', sortable:true, key:p=>p.nav},
+    {label:'资产合计(元)', sortable:true, key:p=>p.assets},
+    {label:'负债合计(元)', sortable:true, key:p=>p.liab},
+    {label:'资产净值(元)', sortable:true, key:p=>p.net},
+    {label:'活期存款(元)', sortable:true, key:p=>p.deposit||0},
+    {label:'结算备付金(元)', sortable:true, key:p=>p.reserve||0},
+    {label:'逆回购(元)', sortable:true, key:p=>p.repo||0},
+    {label:'杠杆率', sortable:true, key:p=>p.leverage},
+    {label:'直投股票(元)', sortable:true, key:p=>p.stock},
+    {label:'权益基金(元)', sortable:true, key:p=>p.eqFund},
+    {label:'混合基金(元)', sortable:true, key:p=>p.hybFund},
+    {label:'穿透权益敞口(%) <span class=tip data-tip="Σ(每只基金市值×该基金财汇数据源实际权益仓位)+直投股票+转债权益部分，分母为资产合计">ⓘ</span>', sortable:true, key:p=>(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15)/p.assets},
+    {label:'直投转债(元)', sortable:true, key:p=>p.cb},
+    {label:'转债基金(元)', sortable:true, key:p=>p.cbFund},
+    {label:'转债占比(%)', sortable:true, key:p=>(p.cb+p.cbFund)/p.assets},
+    {label:'二级债基(元)', sortable:true, key:p=>p.secBond},
+    {label:'二级债基占比(%)', sortable:true, key:p=>p.secBond/p.assets},
+    {label:'纯债基金(元)', sortable:true, key:p=>p.pureBond+p.bondETF},
+    {label:'货币基金(元)', sortable:true, key:p=>p.money},
+    {label:'最大持仓(元)', sortable:true, key:p=>p.maxSingle},
+    {label:'集中度(%)', sortable:true, key:p=>p.maxSingle/p.net},
+    {label:'债权类资产占比(%)', sortable:true, key:p=>((p.deposit||0)+(p.reserve||0)+(p.repo||0)+p.pureBond+p.bondETF+p.money+p.secBond*0.85+(p.cb+p.cbFund)*0.5+p.hybFund*0.4)/p.assets},
+    {label:'实际权益风险敞口(%) <span class=tip data-tip="与穿透权益敞口分子相同，分母为资产净值，用于监管限额监控">ⓘ</span>', sortable:true, key:p=>(p.stock+p.eqFund+p.hybFund+p.cb+p.cbFund+p.secBond*0.2)/p.net},
+  ];
+
+  const hhtml = headerDefs.map((h,i) => {
+    const cls = h.sortable ? 'sortable' + (sortKey===h.key?' '+(sortDir>0?'asc':'desc'):'') : '';
+    const onclick = h.sortable ? `onclick="sortBy(${i})"` : '';
+    return `<th class="${cls}" ${onclick}>${h.label}</th>`;
+  }).join('');
+
+  const rows = page.map(p => {
+    const eqTotal = p.stock + p.eqFund + p.hybFund;
+    const cbTotal = p.cb + p.cbFund;
+    const eqPct = eqTotal / p.assets;
+    const cbPct = cbTotal / p.assets;
+    const secPct = p.secBond / p.assets;
+    const maxSinglePctNet = p.maxSingle / p.net;
+    // 穿透权益敞口（加权）：每只基金 × 财汇数据源实际仓位
+    // 可转债权益比例由财汇数据源逐券提供
+    
+    const cbEquityDefault = 0.50; // 财汇数据源逐券权益比例（占位）
+    const weightedEquity = p.stock*1.0 + p.eqFund*0.90 + p.hybFund*0.60 + (p.cb+p.cbFund)*cbEquityDefault + p.secBond*0.15;
+    const weightedEquityPct = weightedEquity / p.assets;
+    const bondAssets = (p.deposit||0) + (p.reserve||0) + (p.repo||0) + p.pureBond + p.bondETF + p.money + p.secBond*0.85 + (p.cb+p.cbFund)*0.5 + p.hybFund*0.4;
+    const bondPct = bondAssets / p.assets;
+    return `<tr>
+      <td style="font-weight:500;">${p.name}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);">${p.code||'-'}</td>
+      <td style="color:var(--text-muted);">${p.date}</td>
+      <td style="font-family:'DM Mono',monospace;text-align:left;padding-left:10px;">${fmtNAV(p.nav)}</td>
+      <td class="num">${fmt(p.assets)}</td>
+      <td class="num">${fmt(p.liab)}</td>
+      <td class="num">${fmt(p.net)}</td>
+      <td class="num">${fmt(p.deposit||0)}</td>
+      <td class="num">${fmt(p.reserve||0)}</td>
+      <td class="num">${fmt(p.repo||0)}</td>
+      <td><span class="tag ${p.leverage>1.3?'tag-equity':p.leverage>1.15?'tag-hybrid':'tag-etf'}">${p.leverage.toFixed(4)}</span></td>
+      <td class="num">${fmt(p.stock)}</td>
+      <td class="num">${fmt(p.eqFund)}</td>
+      <td class="num">${fmt(p.hybFund)}</td>
+      <td class="num">${(weightedEquityPct*100).toFixed(2)}%</td>
+      <td class="num">${fmt(p.cb)}</td>
+      <td class="num">${fmt(p.cbFund)}</td>
+      <td class="num">${(cbPct*100).toFixed(2)}%${cellBar(cbPct,'cb')}</td>
+      <td class="num">${fmt(p.secBond)}</td>
+      <td class="num">${(secPct*100).toFixed(2)}%${cellBar(secPct,'sec')}</td>
+      <td class="num">${fmt(p.pureBond + p.bondETF)}</td>
+      <td class="num">${fmt(p.money)}</td>
+      <td class="num">${fmt(p.maxSingle)}</td>
+      <td class="num">${(maxSinglePctNet*100).toFixed(2)}%</td>
+      <td class="num" style="font-weight:500;color:${bondPct<0.80?'var(--danger)':'var(--success)'};">${(bondPct*100).toFixed(1)}%</td>
+      <td class="num" style="font-weight:500;color:${weightedEquityPct>0.20?'var(--danger)':weightedEquityPct>0.10?'var(--warning-light)':'var(--text-primary)'};">${(weightedEquityPct*100).toFixed(1)}%</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('productTable').innerHTML = `<div class="table-wrap"><table><thead><tr>${hhtml}</tr></thead><tbody>${rows}</tbody></table></div>`;
+
+  const totalPages = Math.ceil(productData.length / PRODUCT_PAGE_SIZE);
+  document.getElementById('productPagination').innerHTML = totalPages > 1 ? `
+    <span>共 ${productData.length} 条，第 ${productPage}/${totalPages} 页</span>
+    <div class="pagination-btns">
+      <button class="btn" onclick="productPage=1;renderTable()" ${productPage===1?'disabled':''}>«</button>
+      ${Array.from({length:Math.min(totalPages,7)},(_,i)=> {
+        let pg = i+1;
+        if (totalPages>7 && productPage>4) pg = productPage-3+i;
+        if (pg>totalPages) pg = totalPages-(6-i);
+        if (pg<1) pg = 1;
+        return pg;
+      }).filter((v,i,a)=>a.indexOf(v)===i).map(pg=>`
+        <button class="btn ${pg===productPage?'btn-primary':''}" onclick="productPage=${pg};renderTable()">${pg}</button>
+      `).join('')}
+      <button class="btn" onclick="productPage++;renderTable()" ${productPage===totalPages?'disabled':''}>»</button>
+    </div>` : `<span>共 ${productData.length} 条</span>`;
+}
+
+// Email simulation
+function openEmailModal() {
+  document.getElementById('emailModal').classList.add('active');
+  ['step1','step2','step3','step4','step5'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('done','active');
+    el.querySelector('.email-step-icon').className = 'email-step-icon wait';
+  });
+  document.getElementById('btnFetch').disabled = false;
+}
+
+function closeEmailModal() {
+  document.getElementById('emailModal').classList.remove('active');
+}
+
+function simulateFetch() {
+  const btn = document.getElementById('btnFetch');
+  btn.disabled = true;
+  btn.textContent = '拉取中...';
+
+  const steps = ['step1','step2','step3','step4','step5'];
+  const delays = [600, 900, 1200, 1000, 800];
+  let cumDelay = 0;
+
+  steps.forEach((id, i) => {
+    cumDelay += delays[i];
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (i > 0) {
+        const prev = document.getElementById(steps[i-1]);
+        prev.classList.remove('active');
+        prev.classList.add('done');
+        prev.querySelector('.email-step-icon').className = 'email-step-icon done';
+      }
+      el.classList.add('active');
+      el.querySelector('.email-step-icon').className = 'email-step-icon active';
+    }, cumDelay);
+  });
+
+  setTimeout(() => {
+    document.getElementById('step5').classList.remove('active');
+    document.getElementById('step5').classList.add('done');
+    document.getElementById('step5').querySelector('.email-step-icon').className = 'email-step-icon done';
+    btn.textContent = '完成';
+    setTimeout(() => {
+      closeEmailModal();
+      btn.textContent = '开始拉取';
+      btn.disabled = false;
+      const panel = document.getElementById('fetchPanel');
+      panel.style.borderColor = 'var(--success)';
+      setTimeout(() => panel.style.borderColor = '', 2000);
+    }, 600);
+  }, cumDelay + 400);
+}
+
+// ===== Page Switching =====
+function switchPage(page) {
+  document.getElementById('page-dashboard').style.display = page === 'dashboard' ? '' : 'none';
+  document.getElementById('page-nav').style.display = page === 'nav' ? '' : 'none';
+  document.getElementById('page-nav-detail').style.display = page === 'nav-detail' ? '' : 'none';
+  document.getElementById('page-rules').style.display = page === 'rules' ? '' : 'none';
+  document.getElementById('page-detail').style.display = page === 'detail' ? '' : 'none';
+  document.getElementById('tabDashboard').classList.toggle('active', page === 'dashboard');
+  document.getElementById('tabNav').classList.toggle('active', page === 'nav' || page === 'nav-detail');
+  document.getElementById('tabRules').classList.toggle('active', page === 'rules');
+  document.getElementById('tabDetail').classList.toggle('active', page === 'detail');
+  if (page === 'detail') renderDetailPage();
+  if (page === 'dashboard') {
+    renderTable();
+  } else if (page === 'nav') {
+    renderNavPage();
+  } else if (page === 'nav-detail') {
+    renderNavDetailTable();
+  }
+}
+
+// ===== NAV History Page =====
+const NAV_PAGE_SIZE = 5;
+let navFilteredData = [...productData];
+let navCurrentPage = 1;
+
+function renderNavPage() {
+  navFilteredData = [...productData];
+  navCurrentPage = 1;
+  document.getElementById('navSearch').value = '';
+  renderNavTable();
+}
+
+function renderNavTable() {
+  const totalPages = Math.ceil(navFilteredData.length / NAV_PAGE_SIZE);
+  if (navCurrentPage > totalPages) navCurrentPage = totalPages || 1;
+  const start = (navCurrentPage-1) * NAV_PAGE_SIZE;
+  const page = navFilteredData.slice(start, start + NAV_PAGE_SIZE);
+
+  const rows = page.map((p, i) => {
+    return `<tr data-search="${p.name}" style="cursor:pointer;" onclick="openNavDetail(${productData.indexOf(p)})">
+      <td style="color:var(--text-muted);">${start+i+1}</td>
+      <td style="font-weight:500;color:var(--primary);">${p.name}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);">${p.code||'-'}</td>
+      <td style="font-family:'DM Mono',monospace;">${p.nav.toFixed(6)}</td>
+      <td style="color:var(--text-muted);">${p.date}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('navTableContainer').innerHTML = `
+    <div class="table-wrap"><table id="navTable">
+      <thead><tr>
+        <th style="width:40px;">#</th>
+        <th>产品名称</th>
+        <th>代码</th>
+        <th>估值日单位净值</th>
+        <th>估值日期</th>
+      </tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+
+  document.getElementById('navPagination').innerHTML = totalPages > 1 ? `
+    <span>共 ${navFilteredData.length} 条，第 ${navCurrentPage}/${totalPages} 页</span>
+    <div class="pagination-btns">
+      <button class="btn" onclick="navCurrentPage=1;renderNavTable()" ${navCurrentPage===1?'disabled':''}>«</button>
+      ${Array.from({length:totalPages},(_,i)=>i+1).map(pg=>`
+        <button class="btn ${pg===navCurrentPage?'btn-primary':''}" onclick="navCurrentPage=${pg};renderNavTable()">${pg}</button>
+      `).join('')}
+      <button class="btn" onclick="navCurrentPage++;renderNavTable()" ${navCurrentPage===totalPages?'disabled':''}>»</button>
+    </div>` : `<span>共 ${navFilteredData.length} 条</span>`;
+}
+
+function filterNavTable() {
+  const q = document.getElementById('navSearch').value.toLowerCase();
+  navFilteredData = q ? productData.filter(p => p.name.toLowerCase().includes(q)) : [...productData];
+  navCurrentPage = 1;
+  document.getElementById('navSubtitle').textContent = `数据截至 2026-06-17 · ${navFilteredData.length}/${productData.length} 个产品`;
+  renderNavTable();
+}
+
+// ===== NAV Detail Page =====
+const DETAIL_PAGE_SIZE = 20;
+let detailCurrentPage = 1;
+let detailNavData = [];
+
+function openNavDetail(idx) {
+  const p = productData[idx];
+  document.getElementById('navDetailTitle').textContent = p.name;
+  document.getElementById('navDetailSubtitle').textContent = `估值日期: ${p.date} · 单位净值: ${p.nav.toFixed(6)}`;
+
+  detailNavData = [];
+  const startDate = new Date(2026, 2, 15);
+  const endDate = new Date(2026, 5, 17);
+  let seed = p.nav * 0.94;
+  const drift = (p.nav - seed) / 90;
+  const vol = p.nav * 0.002;
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)) {
+    seed += drift + (Math.random()-0.5)*vol*2;
+    seed = Math.max(seed, p.nav*0.92);
+    detailNavData.push({date: d.toISOString().split('T')[0], nav: Number(seed.toFixed(6))});
+  }
+  detailNavData[detailNavData.length-1].nav = p.nav;
+  detailNavData.reverse();
+  detailCurrentPage = 1;
+  switchPage('nav-detail');
+}
+
+function renderNavDetailTable() {
+  const totalPages = Math.ceil(detailNavData.length / DETAIL_PAGE_SIZE);
+  if (detailCurrentPage > totalPages) detailCurrentPage = totalPages || 1;
+  const start = (detailCurrentPage-1) * DETAIL_PAGE_SIZE;
+  const page = detailNavData.slice(start, start + DETAIL_PAGE_SIZE);
+
+  const rows = page.map(d => {
+    return `<tr>
+      <td style="color:var(--text-muted);">${d.date}</td>
+      <td style="font-family:'DM Mono',monospace;">${d.nav.toFixed(6)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('navDetailTable').innerHTML = `
+    <div class="table-wrap"><table>
+      <thead><tr><th>日期</th><th>单位净值</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+
+  document.getElementById('navDetailPagination').innerHTML = totalPages > 1 ? `
+    <span>共 ${detailNavData.length} 个交易日，第 ${detailCurrentPage}/${totalPages} 页</span>
+    <div class="pagination-btns">
+      <button class="btn" onclick="detailCurrentPage=1;renderNavDetailTable()" ${detailCurrentPage===1?'disabled':''}>«</button>
+      ${Array.from({length:Math.min(totalPages,7)},(_,i)=> {
+        let pg = i+1;
+        if (totalPages>7 && detailCurrentPage>4) pg = detailCurrentPage-3+i;
+        if (pg>totalPages) pg=totalPages-(6-i);
+        if (pg<1) pg=1;
+        return pg;
+      }).filter((v,i,a)=>a.indexOf(v)===i).map(pg=>`
+        <button class="btn ${pg===detailCurrentPage?'btn-primary':''}" onclick="detailCurrentPage=${pg};renderNavDetailTable()">${pg}</button>
+      `).join('')}
+      <button class="btn" onclick="detailCurrentPage++;renderNavDetailTable()" ${detailCurrentPage===totalPages?'disabled':''}>»</button>
+    </div>` : `<span>共 ${detailNavData.length} 个交易日</span>`;
+}
+
+// ===== Date Filter =====
+function filterByDate(dateStr) {
+  document.getElementById('fetchLabel').textContent = dateStr + ' 估值表解析情况';
+  // In production: fetch data from backend API for selected date
+  // For demo: refresh display with existing data
+  renderTable();
+}
+
+// ===== Holdings Detail Page =====
+let detailSelectedProduct = null;
+let detailActiveTab = 'fund';
+
+function renderDetailPage() {
+  // Render product list
+  const listHtml = productData.map((p,i) => {
+    const active = detailSelectedProduct === null ? (i===0) : (detailSelectedProduct === i);
+    return `<div class=\"product-list-item\" style="padding:8px 14px;border-bottom:0.5px solid var(--border-light);${active?'background:var(--primary-bg);border-left:3px solid var(--primary);font-weight:500;':''}"
+      onclick="selectDetailProduct(${i})">
+      <div style="font-size:12px;">${p.name}</div>
+      <div style="font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;">${p.code||'-'}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('detailProductList').innerHTML = listHtml;
+
+  if (detailSelectedProduct === null) detailSelectedProduct = 0;
+  selectDetailProduct(detailSelectedProduct);
+}
+
+function filterDetailByDate(dateStr) {
+  // In production: fetch holdings data for the selected date from backend
+  // For demo: refresh display with existing data + show date indicator
+  renderDetailHoldings();
+}
+
+function selectDetailProduct(idx) {
+  detailSelectedProduct = idx;
+  const p = productData[idx];
+  document.getElementById('detailProductLabel').textContent = p.name + ' · ' + (p.code||'-');
+  // Update list highlight
+  const items = document.getElementById('detailProductList').children;
+  for (let i=0; i<items.length; i++) {
+    items[i].style.background = i===idx ? 'var(--primary-bg)' : '';
+    items[i].style.borderLeft = i===idx ? '3px solid var(--primary)' : '';
+  }
+  renderDetailHoldings();
+}
+
+function switchDetailTab(tab) {
+  detailActiveTab = tab;
+  const tabs = document.getElementById('detailTabs').querySelectorAll('.sub-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  if (tab === 'fund') tabs[0].classList.add('active');
+  else if (tab === 'stock') tabs[1].classList.add('active');
+  else tabs[2].classList.add('active');
+  renderDetailHoldings();
+}
+
+function renderDetailHoldings() {
+  const p = productData[detailSelectedProduct];
+  const planName = p.name;
+
+  let data, headers;
+  // Fuzzy match: detail data plan names may differ from productData short names
+  if (detailActiveTab === 'fund') {
+    data = fundDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
+    headers = ['代码','基金名称','交易场所','Wind一级分类','Wind二级分类','市值(元)'];
+  } else if (detailActiveTab === 'stock') {
+    data = stockDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
+    headers = ['代码','名称','市值(元)'];
+  } else {
+    data = cbDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
+    headers = ['代码','名称','市值(元)'];
+  }
+
+  const hhtml = headers.map((h,i) => i===headers.length-1 ? `<th style=\"text-align:center;\">${h}</th>` : `<th>${h}</th>`).join('');
+  const rows = data.map(row => {
+    // New format: [plan_name, code, item_name, ...]
+    const code = row[1];
+    const rest = row.slice(2); // [item_name, (classification), market_value]
+    const cells = rest.map((v,i) => {
+      // i=0: item_name, i=1: classification (fund only) or market_value
+      const isLast = i === rest.length-1;
+      if (isLast) return `<td class=\"num\" style=\"text-align:center;\">${v.toLocaleString('zh-CN',{maximumFractionDigits:0})}</td>`;
+      if (detailActiveTab === 'fund' && i === 1) { return '<td><span style="font-size:11px;">' + v + '</span></td>'; } if (detailActiveTab === 'fund' && i === 2) {
+        const windMap = {
+          '权益类基金':['股票型基金','被动指数型基金'],
+          '混合类基金':['混合型基金','偏股混合型基金'],
+          '纯债基金':['债券型基金','中长期纯债型基金'],
+          '二级债基':['债券型基金','混合债券型二级基金'],
+          '转债基金':['债券型基金','可转换债券型基金'],
+          '货币基金':['货币市场型基金','货币市场型基金'],
+          '债券ETF':['债券型基金','被动指数型债券基金'],
+          '商品基金(权益类)':['另类投资基金','商品型基金'],
+        };
+        const w = windMap[v] || [v,'-'];
+        return `<td><span style=\"font-size:11px;\">${w[0]}</span></td><td><span style=\"font-size:11px;color:var(--text-secondary);\">${w[1]}</span></td>`;
+      }
+      return `<td>${v}</td>`;
+    }).join('');
+    return `<tr><td style=\"font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);\">${code}</td>${cells}</tr>`;
+  }).join('');
+
+  document.getElementById('detailHoldingsTable').innerHTML = `
+    <div class=\"table-wrap\"><table>
+      <thead><tr>${hhtml}</tr></thead>
+      <tbody>${rows||'<tr><td colspan=\"3\" style=\"text-align:center;color:var(--text-muted);padding:20px;\">暂无持仓数据</td></tr>'}</tbody>
+    </table></div>`;
+}
+
+// ===== Sort =====
+function sortBy(idx) {
+  const headerDefs = [
+    {key:null},{key:null},{key:null},{key:p=>p.nav},{key:p=>p.assets},{key:p=>p.liab},{key:p=>p.net},
+    {key:p=>p.deposit||0},{key:p=>p.reserve||0},{key:p=>p.repo||0},{key:p=>p.leverage},
+    {key:p=>p.stock},{key:p=>p.eqFund},{key:p=>p.hybFund},
+    {key:p=>(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15)/p.assets},
+    {key:p=>p.cb},{key:p=>p.cbFund},{key:p=>(p.cb+p.cbFund)/p.assets},
+    {key:p=>p.secBond},{key:p=>p.secBond/p.assets},
+    {key:p=>p.pureBond+p.bondETF},{key:p=>p.money},
+    {key:p=>p.maxSingle},{key:p=>p.maxSingle/p.net},
+    {key:p=>((p.deposit||0)+(p.reserve||0)+(p.repo||0)+p.pureBond+p.bondETF+p.money+p.secBond*0.85+(p.cb+p.cbFund)*0.5+p.hybFund*0.4)/p.assets},
+    {key:p=>(p.stock+p.eqFund+p.hybFund+p.cb+p.cbFund+p.secBond*0.2)/p.net},
+  ];
+  const newKey = headerDefs[idx]?.key;
+  if (!newKey) return;
+  if (sortKey === newKey) { sortDir *= -1; }
+  else { sortKey = newKey; sortDir = -1; }
+  productPage = 1;
+  renderTable();
+}
+
+// ===== Export Excel =====
+function exportExcel() {
+  const isNav = document.getElementById('page-nav').style.display !== 'none';
+  const isDetail = document.getElementById('page-nav-detail').style.display !== 'none';
+
+  if (isNav) {
+    exportNavList();
+  } else if (isDetail) {
+    exportNavDetail();
+  } else {
+    exportDashboard();
+  }
+}
+
+function csvEscape(v) { return '"' + String(v??'').replace(/"/g,'""') + '"'; }
+
+function downloadCSV(filename, headers, rows) {
+  const BOM = '\ufeff';
+  const csv = BOM + headers.map(csvEscape).join(',') + '\n' +
+    rows.map(r => r.map(csvEscape).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function exportDashboard() {
+  const headers = ['产品名称','估值日期','单位净值','资产合计(元)','负债合计(元)','资产净值(元)',
+    '活期存款(元)','结算备付金(元)','逆回购(元)','杠杆率',
+    '直投股票(元)','权益类基金(元)','混合类基金(元)','穿透权益敞口',
+    '直投转债(元)','转债基金(元)','转债占总资产比例','二级债基(元)','二级债基占总资产比例',
+    '纯债基金(元)','货币基金(元)','单一资产最大持仓市值(元)','单一资产最大持仓集中度','债权类资产占比','实际权益风险敞口'];
+  const fmtPct6 = (a,b) => (b?(a/b):0).toFixed(6);
+  const rows = productData.map(p => [
+    p.name, p.date, p.nav, p.assets, p.liab, p.net, p.deposit||0, p.reserve||0, p.repo||0, p.leverage.toFixed(4),
+    p.stock, p.eqFund, p.hybFund, fmtPct6(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15, p.assets),
+    p.cb, p.cbFund, fmtPct6(p.cb+p.cbFund, p.assets), p.secBond, fmtPct6(p.secBond, p.assets),
+    p.pureBond+p.bondETF, p.money, p.maxSingle, fmtPct6(p.maxSingle, p.net),
+    fmtPct6((p.deposit||0)+(p.reserve||0)+(p.repo||0)+p.pureBond+p.bondETF+p.money+p.secBond*0.85+(p.cb+p.cbFund)*0.5+p.hybFund*0.4, p.assets),
+    fmtPct6(p.stock+p.eqFund+p.hybFund+p.cb+p.cbFund+p.secBond*0.2, p.net)
+  ]);
+  downloadCSV('恒丰理财_穿透数据汇总_' + new Date().toISOString().slice(0,10) + '.csv', headers, rows);
+}
+
+function exportNavList() {
+  const headers = ['序号','产品名称','代码','估值日单位净值','估值日期'];
+  const rows = productData.map((p,i) => {
+    return [i+1, p.name, p.code||'-', p.nav.toFixed(6), p.date];
+  });
+  downloadCSV('恒丰理财_产品净值_' + new Date().toISOString().slice(0,10) + '.csv', headers, rows);
+}
+
+function exportNavDetail() {
+  const title = document.getElementById('navDetailTitle').textContent;
+  const headers = ['日期','单位净值'];
+  const rows = detailNavData.map(d => [d.date, d.nav.toFixed(6)]);
+  downloadCSV(title+'_历史净值_' + new Date().toISOString().slice(0,10) + '.csv', headers, rows);
+}
+
+// Init
+renderTable();
+
+</script>
+</body>
+</html>
