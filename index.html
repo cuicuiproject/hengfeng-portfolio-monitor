@@ -497,7 +497,6 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
             <tr><td>二级债基</td><td>基金持仓中分类为"二级债基"的市值之和（混合债券型二级基金，可投 ≤ 20% 股票）</td></tr>
             <tr><td>二级债基占比</td><td>= 二级债基 ÷ 资产合计 × 100%。注意：二级债基本身含潜在权益敞口（≤20%）</td></tr>
             <tr><td>纯债基金</td><td>基金持仓中分类为"纯债基金"的市值之和</td></tr>
-            <tr><td>货币基金</td><td>基金持仓中分类为"货币基金"的市值之和</td></tr>
             <tr><td>债权类资产占比(%)</td><td>= (Σ(每只基金市值×财汇数据源实际债券仓位) + 活期存款 + 结算备付金 + 逆回购 + 直投债券) ÷ 资产合计 × 100%</td></tr>
             <tr><td>单一资产最大持仓市值</td><td>该产品所有持仓（基金+股票+转债）中市值最大的一笔</td></tr>
             <tr><td>单一资产最大持仓集中度</td><td>= 单一资产最大持仓市值 ÷ 资产净值 × 100%。监管要求单只证券 ≤ 净资产的 10%</td></tr>
@@ -640,8 +639,7 @@ function renderTable() {
     {label:'转债占比(%)', sortable:true, key:p=>(p.cb+p.cbFund)/p.assets},
     {label:'二级债基(元)', sortable:true, key:p=>p.secBond},
     {label:'二级债基占比(%)', sortable:true, key:p=>p.secBond/p.assets},
-    {label:'纯债基金(元)', sortable:true, key:p=>p.pureBond+p.bondETF},
-    {label:'货币基金(元)', sortable:true, key:p=>p.money},
+    {label:'纯债基金(元)', sortable:true, key:p=>p.pureBond+p.bondETF+p.money},
     {label:'最大持仓(元)', sortable:true, key:p=>p.maxSingle},
     {label:'最大持仓产品', sortable:false},
     {label:'集中度(%)', sortable:true, key:p=>p.maxSingle/p.net},
@@ -1084,7 +1082,7 @@ function sortBy(idx) {
     {key:p=>(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15)/p.assets},
     {key:p=>p.bond||0},{key:p=>p.cb},{key:p=>p.cbFund},{key:p=>(p.cb+p.cbFund)/p.assets},
     {key:p=>p.secBond},{key:p=>p.secBond/p.assets},
-    {key:p=>p.pureBond+p.bondETF},{key:p=>p.money},
+    {key:p=>p.pureBond+p.bondETF+p.money},
     {key:p=>p.maxSingle},{key:null},{key:p=>p.maxSingle/p.net},
     {key:p=>((p.deposit||0)+(p.reserve||0)+(p.repo||0)+p.pureBond+p.bondETF+p.money+p.secBond*0.85+(p.cb+p.cbFund)*0.5+p.hybFund*0.4)/p.assets},
     {key:p=>(p.stock+p.eqFund+p.hybFund+p.cb+p.cbFund+p.secBond*0.2)/p.net},
@@ -1130,13 +1128,13 @@ function exportDashboard() {
     '活期存款(元)','结算备付金(元)','逆回购(元)','杠杆率',
     '直投股票(元)','权益类基金(元)','混合类基金(元)','穿透权益敞口',
     '直投债券(元)','直投转债(元)','转债基金(元)','转债占总资产比例','二级债基(元)','二级债基占总资产比例',
-    '纯债基金(元)','货币基金(元)','单一资产最大持仓市值(元)','单一资产最大持仓集中度','债权类资产占比','实际权益风险敞口'];
+    '纯债基金(元)','单一资产最大持仓市值(元)','单一资产最大持仓集中度','债权类资产占比','实际权益风险敞口'];
   const fmtPct6 = (a,b) => (b?(a/b):0).toFixed(6);
   const rows = productData.map(p => [
     p.name, p.date, p.nav, p.assets, p.net, p.deposit||0, p.reserve||0, p.repo||0, p.leverage.toFixed(4),
     p.stock, p.eqFund, p.hybFund, fmtPct6(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15, p.assets),
     p.bond||0, p.cb, p.cbFund, fmtPct6(p.cb+p.cbFund, p.assets), p.secBond, fmtPct6(p.secBond, p.assets),
-    p.pureBond+p.bondETF, p.money, p.maxSingle, fmtPct6(p.maxSingle, p.net),
+    p.pureBond+p.bondETF+p.money, p.maxSingle, fmtPct6(p.maxSingle, p.net),
     fmtPct6((p.deposit||0)+(p.reserve||0)+(p.repo||0)+p.pureBond+p.bondETF+p.money+p.secBond*0.85+(p.cb+p.cbFund)*0.5+p.hybFund*0.4, p.assets),
     fmtPct6(p.stock+p.eqFund+p.hybFund+p.cb+p.cbFund+p.secBond*0.2, p.net)
   ]);
