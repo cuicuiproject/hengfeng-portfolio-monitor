@@ -412,7 +412,7 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
         <input type="text" id="dashboardSearch" placeholder="搜索产品名称或代码..." oninput="filterDashboardProducts()"
           style="width:260px;padding:5px 8px;border:0.5px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;outline:none;"
           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
-        <span style="font-size:11px;color:var(--text-muted);" id="dashboardSearchCount"></span>
+        <button class="btn" style="padding:4px 10px;font-size:11px;margin-left:6px;" onclick="filterDashboardProducts()">查询</button><span style="font-size:11px;color:var(--text-muted);" id="dashboardSearchCount"></span>
       </div>
       <div class="panel-body" id="productTable"></div>
       <div class="pagination" id="productPagination"></div>
@@ -461,7 +461,7 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
         <p class="page-subtitle" id="navSubtitle">数据截至 2026-06-17 · 共 10 个产品</p>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <input type="text" class="search-input" id="navSearch" placeholder="搜索产品名称..." oninput="filterNavTable()">
+        <input type="text" class="search-input" id="navSearch" placeholder="搜索产品名称..." oninput="filterNavTable()"><button class="btn" style="padding:4px 10px;font-size:11px;margin-left:6px;" onclick="filterNavTable()">查询</button>
       </div>
     </div>
     <div class="panel">
