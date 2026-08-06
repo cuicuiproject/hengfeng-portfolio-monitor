@@ -470,7 +470,6 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
             <tr><td>估值日期</td><td>从估值表表头提取，格式统一为 YYYY-MM-DD</td></tr>
             <tr><td>估值日单位净值</td><td>从估值表表头提取，资管计划单位份额净值</td></tr>
             <tr><td>资产合计</td><td>估值表中"资产类合计"行对应市值列，即总资产（含负债）</td></tr>
-            <tr><td>负债合计</td><td>估值表中"负债类合计"行对应市值列</td></tr>
             <tr><td>资产净值</td><td>估值表中"资产净值"行对应市值列，= 资产合计 − 负债合计</td></tr>
             <tr><td>活期存款</td><td>名称含"银行存款"的行对应市值列（代码通常为 1002）</td></tr>
             <tr><td>结算备付金</td><td>名称含"结算备付金"的行对应市值列（代码通常为 1021）</td></tr>
@@ -614,7 +613,6 @@ function renderTable() {
     {label:'估值日期', sortable:false},
     {label:'单位净值', sortable:true, key:p=>p.nav},
     {label:'资产合计(元)', sortable:true, key:p=>p.assets},
-    {label:'负债合计(元)', sortable:true, key:p=>p.liab},
     {label:'资产净值(元)', sortable:true, key:p=>p.net},
     {label:'活期存款(元)', sortable:true, key:p=>p.deposit||0},
     {label:'结算备付金(元)', sortable:true, key:p=>p.reserve||0},
@@ -664,7 +662,6 @@ function renderTable() {
       <td style="color:var(--text-muted);">${p.date}</td>
       <td style="font-family:'Noto Sans SC',sans-serif;text-align:left;padding-left:10px;">${fmtNAV(p.nav)}</td>
       <td class="num">${fmt(p.assets)}</td>
-      <td class="num">${fmt(p.liab)}</td>
       <td class="num">${fmt(p.net)}</td>
       <td class="num">${fmt(p.deposit||0)}</td>
       <td class="num">${fmt(p.reserve||0)}</td>
@@ -1016,7 +1013,7 @@ function renderDetailHoldings() {
 // ===== Sort =====
 function sortBy(idx) {
   const headerDefs = [
-    {key:null},{key:null},{key:null},{key:p=>p.nav},{key:p=>p.assets},{key:p=>p.liab},{key:p=>p.net},
+    {key:null},{key:null},{key:null},{key:p=>p.nav},{key:p=>p.assets},{key:p=>p.net},
     {key:p=>p.deposit||0},{key:p=>p.reserve||0},{key:p=>p.repo||0},{key:p=>p.leverage},
     {key:p=>p.stock},{key:p=>p.eqFund},{key:p=>p.hybFund},
     {key:p=>(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15)/p.assets},
@@ -1064,14 +1061,14 @@ function downloadCSV(filename, headers, rows) {
 }
 
 function exportDashboard() {
-  const headers = ['产品名称','估值日期','单位净值','资产合计(元)','负债合计(元)','资产净值(元)',
+  const headers = ['产品名称','估值日期','单位净值','资产合计(元)','资产净值(元)',
     '活期存款(元)','结算备付金(元)','逆回购(元)','杠杆率',
     '直投股票(元)','权益类基金(元)','混合类基金(元)','穿透权益敞口',
     '直投转债(元)','转债基金(元)','转债占总资产比例','二级债基(元)','二级债基占总资产比例',
     '纯债基金(元)','货币基金(元)','单一资产最大持仓市值(元)','单一资产最大持仓集中度','债权类资产占比','实际权益风险敞口'];
   const fmtPct6 = (a,b) => (b?(a/b):0).toFixed(6);
   const rows = productData.map(p => [
-    p.name, p.date, p.nav, p.assets, p.liab, p.net, p.deposit||0, p.reserve||0, p.repo||0, p.leverage.toFixed(4),
+    p.name, p.date, p.nav, p.assets, p.net, p.deposit||0, p.reserve||0, p.repo||0, p.leverage.toFixed(4),
     p.stock, p.eqFund, p.hybFund, fmtPct6(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15, p.assets),
     p.cb, p.cbFund, fmtPct6(p.cb+p.cbFund, p.assets), p.secBond, fmtPct6(p.secBond, p.assets),
     p.pureBond+p.bondETF, p.money, p.maxSingle, fmtPct6(p.maxSingle, p.net),
