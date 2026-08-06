@@ -678,7 +678,7 @@ function renderTable() {
       <td class="num">${(secPct*100).toFixed(2)}%${cellBar(secPct,'sec')}</td>
       <td class="num">${fmt(p.pureBond + p.bondETF)}</td>
       <td class="num">${fmt(p.money)}</td>
-      <td class="num">${fmt(p.maxSingle)}</td>
+      <td class="num">${fmt(p.maxSingle)} <span style="font-size:10px;color:var(--text-muted);">${(getMaxSingleName(p.name))}</span></td>
       <td class="num">${(maxSinglePctNet*100).toFixed(2)}%</td>
       <td class="num" style="color:var(--text-primary);">${(bondPct*100).toFixed(1)}%</td>
       <td class="num" style="color:var(--text-primary);">${(weightedEquityPct*100).toFixed(1)}%</td>
@@ -1008,6 +1008,20 @@ function renderDetailHoldings() {
       <thead><tr>${hhtml}</tr></thead>
       <tbody>${rows||'<tr><td colspan=\"3\" style=\"text-align:center;color:var(--text-muted);padding:20px;\">暂无持仓数据</td></tr>'}</tbody>
     </table></div>`;
+}
+
+function getMaxSingleName(planName) {
+  // Search fundDetails, stockDetails, cbDetails for the matching plan
+  let maxVal = 0, maxName = '';
+  for (const arr of [fundDetails, stockDetails, cbDetails]) {
+    for (const row of arr) {
+      if ((row[0].includes(planName) || planName.includes(row[0].substring(0,8))) && row[row.length-1] > maxVal) {
+        maxVal = row[row.length-1];
+        maxName = arr === fundDetails ? row[2] : row[2]; // name field is at index 2 for all
+      }
+    }
+  }
+  return maxName || '';
 }
 
 // ===== Sort =====
