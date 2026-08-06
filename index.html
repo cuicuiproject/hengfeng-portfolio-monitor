@@ -408,6 +408,12 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
 
     <!-- Product Table -->
     <div class="panel full-width">
+      <div style="padding:8px 12px;border-bottom:0.5px solid var(--border);display:flex;gap:8px;align-items:center;">
+        <input type="text" id="dashboardSearch" placeholder="搜索产品名称或代码..." oninput="filterDashboardProducts()"
+          style="width:260px;padding:5px 8px;border:0.5px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;outline:none;"
+          onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        <span style="font-size:11px;color:var(--text-muted);" id="dashboardSearchCount"></span>
+      </div>
       <div class="panel-body" id="productTable"></div>
       <div class="pagination" id="productPagination"></div>
     </div>
@@ -909,6 +915,25 @@ function renderNavDetailTable() {
 }
 
 // ===== Date Filter =====
+function filterDashboardProducts() {
+  var q = document.getElementById('dashboardSearch').value.toLowerCase();
+  var filtered = productData.filter(function(p) {
+    return !q || p.name.toLowerCase().indexOf(q) >= 0 || (p.code||'').toLowerCase().indexOf(q) >= 0;
+  });
+  if (q) {
+    var total = filtered.length;
+    document.getElementById('dashboardSearchCount').textContent = '匹配 ' + total + ' 个产品';
+  } else {
+    document.getElementById('dashboardSearchCount').textContent = '';
+  }
+  // Temporarily replace productData, render, then restore
+  var orig = productData;
+  productData = filtered;
+  productPage = 1;
+  renderTable();
+  productData = orig;
+}
+
 function filterByDate(dateStr) {
   document.getElementById('fetchLabel').textContent = dateStr + ' 估值表解析情况';
   // In production: fetch data from backend API for selected date
