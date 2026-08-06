@@ -72,7 +72,7 @@ body {
   background: var(--primary);
   border-radius: var(--radius-sm);
   display: flex; align-items:center; justify-content:center;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Noto Sans SC', sans-serif;
   font-size: 14px; font-weight: 500;
   color: #fff;
 }
@@ -229,7 +229,7 @@ tbody tr:hover { background: var(--bg-hover); }
 tbody tr:hover td:first-child { background: var(--bg-hover); }
 
 /* Number formatting */
-.num { font-family: 'DM Mono', monospace; text-align: right; }
+.num { font-family: 'Noto Sans SC', sans-serif; text-align: right; }
 /* Tags */
 .tag {
   display: inline-block;
@@ -237,7 +237,7 @@ tbody tr:hover td:first-child { background: var(--bg-hover); }
   border-radius: var(--radius-sm);
   font-size: 11px;
   font-weight: 500;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Noto Sans SC', sans-serif;
 }
 .tag-equity { background: var(--danger-bg); color: var(--danger); }
 .tag-hybrid { background: var(--warning-bg); color: var(--warning-light); }
@@ -328,7 +328,7 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
   display: flex; align-items:center; justify-content:center;
   font-size: 12px;
   flex-shrink: 0;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Noto Sans SC', sans-serif;
 }
 .email-step-icon.wait { background: var(--border-light); color: var(--text-muted); }
 .email-step-icon.done { background: var(--success-bg); color: var(--success); }
@@ -396,7 +396,7 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
       <div class="fetch-icon">📊</div>
       <div class="fetch-info">
         <div class="fetch-label" id="fetchLabel">2026-06-17 估值表解析情况</div>
-        <div class="fetch-detail">已解析 10 份估值表 · 覆盖 81 笔基金 · 229 笔股票 · 12 笔转债</div>
+        <div class="fetch-detail">已解析 10 份估值表</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">估值日期</span>
@@ -659,9 +659,9 @@ function renderTable() {
     const bondPct = bondAssets / p.assets;
     return `<tr>
       <td style="font-weight:500;">${p.name}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);">${p.code||'-'}</td>
+      <td style="font-family:'Noto Sans SC',sans-serif;font-size:11px;color:var(--text-muted);">${p.code||'-'}</td>
       <td style="color:var(--text-muted);">${p.date}</td>
-      <td style="font-family:'DM Mono',monospace;text-align:left;padding-left:10px;">${fmtNAV(p.nav)}</td>
+      <td style="font-family:'Noto Sans SC',sans-serif;text-align:left;padding-left:10px;">${fmtNAV(p.nav)}</td>
       <td class="num">${fmt(p.assets)}</td>
       <td class="num">${fmt(p.liab)}</td>
       <td class="num">${fmt(p.net)}</td>
@@ -682,8 +682,8 @@ function renderTable() {
       <td class="num">${fmt(p.money)}</td>
       <td class="num">${fmt(p.maxSingle)}</td>
       <td class="num">${(maxSinglePctNet*100).toFixed(2)}%</td>
-      <td class="num" style="font-weight:500;color:${bondPct<0.80?'var(--danger)':'var(--success)'};">${(bondPct*100).toFixed(1)}%</td>
-      <td class="num" style="font-weight:500;color:${weightedEquityPct>0.20?'var(--danger)':weightedEquityPct>0.10?'var(--warning-light)':'var(--text-primary)'};">${(weightedEquityPct*100).toFixed(1)}%</td>
+      <td class="num" style="color:var(--text-primary);">${(bondPct*100).toFixed(1)}%</td>
+      <td class="num" style="color:var(--text-primary);">${(weightedEquityPct*100).toFixed(1)}%</td>
     </tr>`;
   }).join('');
 
@@ -805,8 +805,8 @@ function renderNavTable() {
     return `<tr data-search="${p.name}" style="cursor:pointer;" onclick="openNavDetail(${productData.indexOf(p)})">
       <td style="color:var(--text-muted);">${start+i+1}</td>
       <td style="font-weight:500;color:var(--primary);">${p.name}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);">${p.code||'-'}</td>
-      <td style="font-family:'DM Mono',monospace;">${p.nav.toFixed(6)}</td>
+      <td style="font-family:'Noto Sans SC',sans-serif;font-size:11px;color:var(--text-muted);">${p.code||'-'}</td>
+      <td style="font-family:'Noto Sans SC',sans-serif;">${p.nav.toFixed(6)}</td>
       <td style="color:var(--text-muted);">${p.date}</td>
     </tr>`;
   }).join('');
@@ -877,7 +877,7 @@ function renderNavDetailTable() {
   const rows = page.map(d => {
     return `<tr>
       <td style="color:var(--text-muted);">${d.date}</td>
-      <td style="font-family:'DM Mono',monospace;">${d.nav.toFixed(6)}</td>
+      <td style="font-family:'Noto Sans SC',sans-serif;">${d.nav.toFixed(6)}</td>
     </tr>`;
   }).join('');
 
@@ -922,7 +922,7 @@ function renderDetailPage() {
     return `<div class=\"product-list-item\" style="padding:8px 14px;border-bottom:0.5px solid var(--border-light);${active?'background:var(--primary-bg);border-left:3px solid var(--primary);font-weight:500;':''}"
       onclick="selectDetailProduct(${i})">
       <div style="font-size:12px;">${p.name}</div>
-      <div style="font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;">${p.code||'-'}</div>
+      <div style="font-size:10px;color:var(--text-muted);font-family:'Noto Sans SC',sans-serif;">${p.code||'-'}</div>
     </div>`;
   }).join('');
   document.getElementById('detailProductList').innerHTML = listHtml;
@@ -1002,7 +1002,7 @@ function renderDetailHoldings() {
       }
       return `<td>${v}</td>`;
     }).join('');
-    return `<tr><td style=\"font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);\">${code}</td>${cells}</tr>`;
+    return `<tr><td style=\"font-family:'Noto Sans SC',sans-serif;font-size:11px;color:var(--text-muted);\">${code}</td>${cells}</tr>`;
   }).join('');
 
   document.getElementById('detailHoldingsTable').innerHTML = `
