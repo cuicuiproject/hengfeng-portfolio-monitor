@@ -630,7 +630,7 @@ function renderTable() {
     {label:'纯债基金(元)', sortable:true, key:p=>p.pureBond+p.bondETF},
     {label:'货币基金(元)', sortable:true, key:p=>p.money},
     {label:'最大持仓(元)', sortable:true, key:p=>p.maxSingle},
-    {label:'最大持仓标的', sortable:false},
+    {label:'最大持仓产品', sortable:false},
     {label:'集中度(%)', sortable:true, key:p=>p.maxSingle/p.net},
     {label:'债权类资产占比(%)', sortable:true, key:p=>((p.deposit||0)+(p.reserve||0)+(p.repo||0)+p.pureBond+p.bondETF+p.money+p.secBond*0.85+(p.cb+p.cbFund)*0.5+p.hybFund*0.4)/p.assets},
     {label:'实际权益风险敞口(%) <span class=tip data-tip="与穿透权益敞口分子相同，分母为资产净值，用于监管限额监控">ⓘ</span>', sortable:true, key:p=>(p.stock+p.eqFund+p.hybFund+p.cb+p.cbFund+p.secBond*0.2)/p.net},
