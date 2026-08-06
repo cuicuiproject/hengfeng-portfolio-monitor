@@ -633,6 +633,7 @@ function renderTable() {
     {label:'权益基金(元)', sortable:true, key:p=>p.eqFund},
     {label:'混合基金(元)', sortable:true, key:p=>p.hybFund},
     {label:'穿透权益敞口(%) <span class=tip data-tip="Σ(每只基金市值×该基金财汇数据源实际权益仓位)+直投股票+转债权益部分，分母为资产合计">ⓘ</span>', sortable:true, key:p=>(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15)/p.assets},
+    {label:'直投债券(元)', sortable:true, key:p=>p.bond||0},
     {label:'直投转债(元)', sortable:true, key:p=>p.cb},
     {label:'转债基金(元)', sortable:true, key:p=>p.cbFund},
     {label:'转债占比(%)', sortable:true, key:p=>(p.cb+p.cbFund)/p.assets},
@@ -655,6 +656,7 @@ function renderTable() {
 
   const rows = page.map(p => {
     const eqTotal = p.stock + p.eqFund + p.hybFund;
+    const bondDirect = p.bond || 0;
     const cbTotal = p.cb + p.cbFund;
     const eqPct = eqTotal / p.assets;
     const cbPct = cbTotal / p.assets;
@@ -666,7 +668,7 @@ function renderTable() {
     const cbEquityDefault = 0.50; // 财汇数据源逐券权益比例（占位）
     const weightedEquity = p.stock*1.0 + p.eqFund*0.90 + p.hybFund*0.60 + (p.cb+p.cbFund)*cbEquityDefault + p.secBond*0.15;
     const weightedEquityPct = weightedEquity / p.assets;
-    const bondAssets = (p.deposit||0) + (p.reserve||0) + (p.repo||0) + p.pureBond + p.bondETF + p.money + p.secBond*0.85 + (p.cb+p.cbFund)*0.5 + p.hybFund*0.4;
+    const bondAssets = (p.deposit||0) + (p.reserve||0) + (p.repo||0) + p.pureBond + p.bondETF + p.money + p.secBond*0.85 + (p.cb+p.cbFund)*0.5 + p.hybFund*0.4 + bondDirect;
     const bondPct = bondAssets / p.assets;
     return `<tr>
       <td style="font-weight:500;">${p.name}</td>
@@ -1079,7 +1081,7 @@ function sortBy(idx) {
     {key:p=>p.deposit||0},{key:p=>p.reserve||0},{key:p=>p.repo||0},{key:p=>p.leverage},
     {key:p=>p.stock},{key:p=>p.eqFund},{key:p=>p.hybFund},
     {key:p=>(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15)/p.assets},
-    {key:p=>p.cb},{key:p=>p.cbFund},{key:p=>(p.cb+p.cbFund)/p.assets},
+    {key:p=>p.bond||0},{key:p=>p.cb},{key:p=>p.cbFund},{key:p=>(p.cb+p.cbFund)/p.assets},
     {key:p=>p.secBond},{key:p=>p.secBond/p.assets},
     {key:p=>p.pureBond+p.bondETF},{key:p=>p.money},
     {key:p=>p.maxSingle},{key:null},{key:p=>p.maxSingle/p.net},
@@ -1126,13 +1128,13 @@ function exportDashboard() {
   const headers = ['产品名称','估值日期','单位净值','资产合计(元)','资产净值(元)',
     '活期存款(元)','结算备付金(元)','逆回购(元)','杠杆率',
     '直投股票(元)','权益类基金(元)','混合类基金(元)','穿透权益敞口',
-    '直投转债(元)','转债基金(元)','转债占总资产比例','二级债基(元)','二级债基占总资产比例',
+    '直投债券(元)','直投转债(元)','转债基金(元)','转债占总资产比例','二级债基(元)','二级债基占总资产比例',
     '纯债基金(元)','货币基金(元)','单一资产最大持仓市值(元)','单一资产最大持仓集中度','债权类资产占比','实际权益风险敞口'];
   const fmtPct6 = (a,b) => (b?(a/b):0).toFixed(6);
   const rows = productData.map(p => [
     p.name, p.date, p.nav, p.assets, p.net, p.deposit||0, p.reserve||0, p.repo||0, p.leverage.toFixed(4),
     p.stock, p.eqFund, p.hybFund, fmtPct6(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15, p.assets),
-    p.cb, p.cbFund, fmtPct6(p.cb+p.cbFund, p.assets), p.secBond, fmtPct6(p.secBond, p.assets),
+    p.bond||0, p.cb, p.cbFund, fmtPct6(p.cb+p.cbFund, p.assets), p.secBond, fmtPct6(p.secBond, p.assets),
     p.pureBond+p.bondETF, p.money, p.maxSingle, fmtPct6(p.maxSingle, p.net),
     fmtPct6((p.deposit||0)+(p.reserve||0)+(p.repo||0)+p.pureBond+p.bondETF+p.money+p.secBond*0.85+(p.cb+p.cbFund)*0.5+p.hybFund*0.4, p.assets),
     fmtPct6(p.stock+p.eqFund+p.hybFund+p.cb+p.cbFund+p.secBond*0.2, p.net)
