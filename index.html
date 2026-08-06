@@ -1013,13 +1013,16 @@ function renderDetailHoldings() {
 }
 
 function getMaxSingleName(planName) {
-  // Search fundDetails, stockDetails, cbDetails for the matching plan
   let maxVal = 0, maxName = '';
   for (const arr of [fundDetails, stockDetails, cbDetails]) {
     for (const row of arr) {
-      if ((row[0].includes(planName) || planName.includes(row[0].substring(0,8))) && row[row.length-1] > maxVal) {
+      // Fuzzy match: check if either name contains the other, or first 6 chars overlap
+      const detailPlan = row[0], short = planName.substring(0,6);
+      const match = detailPlan.includes(short) || planName.includes(detailPlan.substring(0,6))
+                 || detailPlan.includes(planName) || planName.includes(detailPlan);
+      if (match && row[row.length-1] > maxVal) {
         maxVal = row[row.length-1];
-        maxName = arr === fundDetails ? row[2] : row[2]; // name field is at index 2 for all
+        maxName = row[2]; // name field is at index 2 for all arrays
       }
     }
   }
