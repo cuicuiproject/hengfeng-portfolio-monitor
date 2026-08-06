@@ -425,8 +425,13 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
     <div style="display:flex;gap:16px;height:calc(100vh - 150px);">
       <!-- Left: Product List -->
       <div class="panel" style="width:280px;flex-shrink:0;">
-        <div class="panel-header"><div class="panel-title">产品列表 <span style="color:var(--text-muted);font-size:11px;">(10个)</span></div></div>
-        <div class="panel-body" id="detailProductList" style="max-height:calc(100vh - 210px);"></div>
+        <div class="panel-header"><div class="panel-title">产品列表 <span style="color:var(--text-muted);font-size:11px;" id="detailProductCount">(10个)</span></div></div>
+        <div style="padding:6px 12px;border-bottom:0.5px solid var(--border);">
+          <input type="text" id="detailProductSearch" placeholder="搜索产品..." oninput="filterDetailProducts()"
+            style="width:100%;padding:5px 8px;border:0.5px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;outline:none;"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div class="panel-body" id="detailProductList" style="max-height:calc(100vh - 250px);"></div>
       </div>
       <!-- Right: Holdings Tabs + Table -->
       <div class="panel" style="flex:1;display:flex;flex-direction:column;">
@@ -935,6 +940,19 @@ function filterDetailByDate(dateStr) {
   // In production: fetch holdings data for the selected date from backend
   // For demo: refresh display with existing data + show date indicator
   renderDetailHoldings();
+}
+
+function filterDetailProducts() {
+  var q = document.getElementById('detailProductSearch').value.toLowerCase();
+  var items = document.getElementById('detailProductList').children;
+  var count = 0;
+  for (var i=0; i<items.length; i++) {
+    var name = items[i].textContent.toLowerCase();
+    var show = !q || name.indexOf(q) >= 0;
+    items[i].style.display = show ? '' : 'none';
+    if (show) count++;
+  }
+  document.getElementById('detailProductCount').textContent = '('+count+'个)';
 }
 
 function selectDetailProduct(idx) {
