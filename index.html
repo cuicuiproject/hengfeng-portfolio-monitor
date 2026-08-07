@@ -1025,7 +1025,7 @@ function renderDetailHoldings() {
     headers = ['代码','名称','市值(元)'];
   } else {
     data = bondDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
-    headers = ['名称','市值(元)'];
+    headers = ['债券代码','名称','市值(元)'];
   }
 
   const hhtml = headers.map((h,i) => i===headers.length-1 ? `<th style=\"text-align:center;\">${h}</th>` : `<th>${h}</th>`).join('');
