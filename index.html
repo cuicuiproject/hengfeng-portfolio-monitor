@@ -681,7 +681,7 @@ function renderTable() {
       <td class="num">${fmt(p.deposit||0)}</td>
       <td class="num">${fmt(p.reserve||0)}</td>
       <td class="num">${fmt(p.repo||0)}</td>
-      <td><span class="tag ${p.leverage>1.3?'tag-equity':p.leverage>1.15?'tag-hybrid':'tag-etf'}">${p.leverage.toFixed(4)}</span></td>
+      <td><span class="tag 'tag-hybrid'">${p.leverage.toFixed(4)}</span></td>
       <td class="num">${fmt(p.stock)}</td>
       <td class="num">${fmt(p.eqFund)}</td>
       <td class="num">${fmt(p.hybFund)}</td>
