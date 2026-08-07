@@ -1015,10 +1015,10 @@ function renderDetailHoldings() {
   // Fuzzy match: detail data plan names may differ from productData short names
   if (detailActiveTab === 'fund') {
     data = fundDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
-    headers = ['代码','基金名称','交易场所','Wind一级分类','Wind二级分类','市值(元)'];
+    headers = ['基金代码','基金名称','交易场所','Wind一级分类','Wind二级分类','市值(元)'];
   } else if (detailActiveTab === 'stock') {
     data = stockDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
-    headers = ['代码','名称','市值(元)'];
+    headers = ['股票代码','名称','市值(元)'];
   } else if (detailActiveTab === 'cb') {
     data = cbDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
     headers = ['代码','名称','市值(元)'];
