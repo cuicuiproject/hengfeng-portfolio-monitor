@@ -624,7 +624,7 @@ function renderTable() {
     {label:'权益基金(元)', sortable:true, key:p=>p.eqFund},
     {label:'混合基金(元)', sortable:true, key:p=>p.hybFund},
     {label:'穿透权益敞口(%) <span class=tip data-tip="Σ(每只基金市值×该基金财汇数据源实际权益仓位)+直投股票+转债权益部分，分母为资产合计">ⓘ</span>', sortable:true, key:p=>(p.stock*1.0+p.eqFund*0.90+p.hybFund*0.60+(p.cb+p.cbFund)*0.50+p.secBond*0.15)/p.assets},
-    {label:'直投债券(元)', sortable:true, key:p=>p.bond||0},
+    {label:'直投债券(元) <span class=tip data-tip="利率债/信用债等，不含可转债">ⓘ</span>', sortable:true, key:p=>p.bond||0},
     {label:'直投转债(元)', sortable:true, key:p=>p.cb},
     {label:'转债基金(元)', sortable:true, key:p=>p.cbFund},
     {label:'转债占比(%)', sortable:true, key:p=>(p.cb+p.cbFund)/p.assets},
