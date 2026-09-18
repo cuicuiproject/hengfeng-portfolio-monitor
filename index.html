@@ -140,6 +140,14 @@ body {
   font-weight: 500;
 }
 .sub-tab:hover { color: var(--primary); }
+/* 子 tab 数量徽标（持仓明细页）；0 显示灰色"—"，>0 显示数字 */
+.tab-badge {
+  display:inline-block; margin-left:6px; min-width:18px; padding:0 6px;
+  font-size:10px; line-height:16px; border-radius:8px;
+  background:var(--bg-hover); color:var(--text-secondary); font-weight:400;
+  text-align:center; vertical-align:1px;
+}
+.sub-tab.active .tab-badge { background:var(--primary-bg); color:var(--primary); font-weight:500; }
 .tip { cursor:help; border-bottom:1px dotted var(--text-muted); position:relative; }
 .tip:hover::after { content:attr(data-tip); position:absolute; right:0; top:100%;
   background:#333; color:#fff; padding:6px 10px; border-radius:4px; font-size:11px;
@@ -450,10 +458,10 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
       <!-- Right: Holdings Tabs + Table -->
       <div class="panel" style="flex:1;display:flex;flex-direction:column;">
         <div style="padding:8px 16px;border-bottom:0.5px solid var(--border);display:flex;gap:0;" id="detailTabs">
-          <button class="btn sub-tab active" onclick="switchDetailTab('fund')">基金持仓（含ETF）</button>
-          <button class="btn sub-tab" onclick="switchDetailTab('stock')">股票持仓</button>
-          <button class="btn sub-tab" onclick="switchDetailTab('cb')">转债持仓</button>
-          <button class="btn sub-tab" onclick="switchDetailTab('bond')">债券持仓</button>
+          <button class="btn sub-tab active" onclick="switchDetailTab('fund')">基金持仓（含ETF）<span class="tab-badge" id="badge-fund">—</span></button>
+          <button class="btn sub-tab" onclick="switchDetailTab('stock')">股票持仓<span class="tab-badge" id="badge-stock">—</span></button>
+          <button class="btn sub-tab" onclick="switchDetailTab('cb')">转债持仓<span class="tab-badge" id="badge-cb">—</span></button>
+          <button class="btn sub-tab" onclick="switchDetailTab('bond')">债券持仓<span class="tab-badge" id="badge-bond">—</span></button>
           
         </div>
         <div class="panel-body" id="detailHoldingsTable" style="flex:1;"></div>
@@ -1151,14 +1159,45 @@ function filterByDate(dateStr) {
 let detailSelectedProduct = null;
 let detailActiveTab = 'fund';
 
+// 4 个子 tab 的标识与数据源映射（徽标统计 + 渲染共用，避免漂移）
+const DETAIL_TABS = [
+  {id:'fund',  label:'基金持仓（含ETF）', src:()=>fundDetails},
+  {id:'stock', label:'股票持仓',          src:()=>stockDetails},
+  {id:'cb',    label:'转债持仓',          src:()=>cbDetails},
+  {id:'bond',  label:'债券持仓',          src:()=>bondDetails},
+];
+
+// 模糊匹配：与原 renderDetailHoldings 内联逻辑等价；提取出来给徽标统计 + 渲染共用
+function matchDetailRows(arr, planName) {
+  return arr.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
+}
+
+// 更新 4 个 tab 徽标数量（0 显示灰色"—"，>0 显示数字）
+function updateDetailTabBadges(planName) {
+  DETAIL_TABS.forEach(t => {
+    const el = document.getElementById('badge-' + t.id);
+    if (!el) return;
+    const n = matchDetailRows(t.src(), planName).length;
+    el.textContent = n;
+  });
+}
+
+// 切换 4 个 sub-tab 的 active 视觉（不触发 renderDetailHoldings）
+function setActiveDetailTabUI(tabId) {
+  const tabs = document.getElementById('detailTabs').querySelectorAll('.sub-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  const idx = DETAIL_TABS.findIndex(t => t.id === tabId);
+  if (idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
+}
+
 function renderDetailPage() {
   // Render product list
   const listHtml = productData.map((p,i) => {
     const active = detailSelectedProduct === null ? (i===0) : (detailSelectedProduct === i);
-    return `<div class=\"product-list-item\" style="padding:8px 14px;border-bottom:0.5px solid var(--border-light);${active?'background:var(--primary-bg);border-left:3px solid var(--primary);font-weight:500;':''}"
-      onclick="selectDetailProduct(${i})">
-      <div style="font-size:12px;">${p.name}</div>
-      <div style="font-size:10px;color:var(--text-muted);font-family:'Noto Sans SC',sans-serif;">${p.code||'-'}</div>
+    return `<div class='product-list-item' style='padding:8px 14px;border-bottom:0.5px solid var(--border-light);${active?"background:var(--primary-bg);border-left:3px solid var(--primary);font-weight:500;":""}'
+      onclick='selectDetailProduct(${i})'>
+      <div style='font-size:12px;'>${p.name}</div>
+      <div style='font-size:10px;color:var(--text-muted);font-family:Noto Sans SC,sans-serif;'>${p.code||'-'}</div>
     </div>`;
   }).join('');
   document.getElementById('detailProductList').innerHTML = listHtml;
@@ -1189,24 +1228,26 @@ function filterDetailProducts() {
 function selectDetailProduct(idx) {
   detailSelectedProduct = idx;
   const p = productData[idx];
-  document.getElementById('detailProductLabel').textContent = p.name + ' · ' + (p.code||'-');
   // Update list highlight
   const items = document.getElementById('detailProductList').children;
   for (let i=0; i<items.length; i++) {
     items[i].style.background = i===idx ? 'var(--primary-bg)' : '';
     items[i].style.borderLeft = i===idx ? '3px solid var(--primary)' : '';
+    items[i].style.fontWeight = i===idx ? '500' : '';
   }
+
+  // 统计每个 tab 当前产品有几条；自动跳到首个 >0 的 tab；全空时保持默认 fund
+  const firstNonEmpty = DETAIL_TABS.find(t => matchDetailRows(t.src(), p.name).length > 0);
+  detailActiveTab = firstNonEmpty ? firstNonEmpty.id : 'fund';
+  setActiveDetailTabUI(detailActiveTab);
+
+  updateDetailTabBadges(p.name);
   renderDetailHoldings();
 }
 
 function switchDetailTab(tab) {
   detailActiveTab = tab;
-  const tabs = document.getElementById('detailTabs').querySelectorAll('.sub-tab');
-  tabs.forEach(t => t.classList.remove('active'));
-  if (tab === 'fund') tabs[0].classList.add('active');
-  else if (tab === 'stock') tabs[1].classList.add('active');
-  else if (tab === 'cb') tabs[2].classList.add('active');
-  else tabs[3].classList.add('active');
+  setActiveDetailTabUI(tab);
   renderDetailHoldings();
 }
 
@@ -1214,20 +1255,24 @@ function renderDetailHoldings() {
   const p = productData[detailSelectedProduct];
   const planName = p.name;
 
-  let data, headers;
+  let data, headers, colspan;
   // Fuzzy match: detail data plan names may differ from productData short names
   if (detailActiveTab === 'fund') {
-    data = fundDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
+    data = matchDetailRows(fundDetails, planName);
     headers = ['基金代码','基金名称','交易场所','Wind一级分类','Wind二级分类','市值(元)'];
+    colspan = 6;
   } else if (detailActiveTab === 'stock') {
-    data = stockDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
+    data = matchDetailRows(stockDetails, planName);
     headers = ['股票代码','名称','市值(元)'];
+    colspan = 3;
   } else if (detailActiveTab === 'cb') {
-    data = cbDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
+    data = matchDetailRows(cbDetails, planName);
     headers = ['代码','名称','市值(元)'];
+    colspan = 3;
   } else {
-    data = bondDetails.filter(r => r[0].includes(planName) || planName.includes(r[0].substring(0,8)));
+    data = matchDetailRows(bondDetails, planName);
     headers = ['债券代码','名称','市值(元)'];
+    colspan = 3;
   }
 
   const hhtml = headers.map((h,i) => i===headers.length-1 ? `<th style=\"text-align:center;\">${h}</th>` : `<th>${h}</th>`).join('');
@@ -1258,10 +1303,24 @@ function renderDetailHoldings() {
     return `<tr><td style=\"font-family:'Noto Sans SC',sans-serif;font-size:11px;color:var(--text-muted);\">${code}</td>${cells}</tr>`;
   }).join('');
 
+  // 空态文案：分"全空" vs "仅当前tab空" 两种提示，给用户明确指引
+  const tabDef = DETAIL_TABS.find(t => t.id === detailActiveTab) || DETAIL_TABS[0];
+  const countsAll = DETAIL_TABS.map(t => ({label:t.label, n: matchDetailRows(t.src(), planName).length}));
+  const anyData = countsAll.some(c => c.n > 0);
+  let emptyHtml;
+  if (data.length > 0) {
+    emptyHtml = '';
+  } else if (!anyData) {
+    emptyHtml = `<tr><td colspan=\"${colspan}\" style=\"text-align:center;color:var(--text-muted);padding:32px 20px;font-size:12px;\">该产品暂无持仓明细</td></tr>`;
+  } else {
+    const first = countsAll.find(c => c.n > 0);
+    emptyHtml = `<tr><td colspan=\"${colspan}\" style=\"text-align:center;color:var(--text-muted);padding:32px 20px;font-size:12px;\">该产品在【${tabDef.label}】下暂无持仓，可切换至【${first.label}（${first.n}）】查看</td></tr>`;
+  }
+
   document.getElementById('detailHoldingsTable').innerHTML = `
     <div class=\"table-wrap\"><table>
       <thead><tr>${hhtml}</tr></thead>
-      <tbody>${rows||'<tr><td colspan=\"3\" style=\"text-align:center;color:var(--text-muted);padding:20px;\">暂无持仓数据</td></tr>'}</tbody>
+      <tbody>${rows||emptyHtml}</tbody>
     </table></div>`;
 }
 
