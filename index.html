@@ -518,30 +518,9 @@ th.sortable.desc::after { content:' \2193'; color:var(--primary); }
             <tr><td>单一资产最大持仓集中度</td><td>= 单一资产最大持仓市值 ÷ 资产净值 × 100%。监管要求单只证券 ≤ 净资产的 10%</td></tr>
             <tr><td>实际权益风险敞口</td><td>= (直投股票 + Σ(每只基金市值×该基金财汇数据源股票仓位)) ÷ 资产净值 × 100%</td></tr>
             <tr><td>实际转债风险敞口</td><td>= (直投转债 + Σ(每只基金市值×该基金财汇数据源转债仓位)) ÷ 资产净值 × 100%</td></tr>
-            <tr><td>债券仓位(%) <span class="tip" data-tip="直投债券市值 ÷ 资产净值。">ⓘ</span></td><td>= 直投债券市值 ÷ 资产净值 × 100%。</td></tr>
             <tr><td>债券加权平均久期(年) <span class="tip" data-tip="分子=Σ(单只直投债券市值×该只债券久期)，分母=Σ(单只直投债券市值)。">ⓘ</span></td><td>= Σ(单只直投债券市值 × 该只债券修正久期) ÷ Σ(单只直投债券市值)。单位：年。无债券持仓时显示"—"</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:20px;font-size:11px;color:var(--text-muted);">
-          <b>穿透仓位来源</b>：基金的实际股票仓位和转债仓位数据均来自财汇数据源（最新季报口径），按每只基金的实际持仓占比加权计算实际权益风险敞口和实际转债风险敞口。<br>
-          <b>债券久期来源</b>：单只债券的久期取自财汇数据源（T 日估值表对应日的久期字段），按市值加权计算"债券加权平均久期"。<b>"债券仓位"和"债券加权平均久期"只统计本产品直接持有的债券</b>（信托计划的债券风险在穿透监测的其他指标中单独体现）。<br>
-          <b>注</b>：股票红利、债券利息等应收款项不计入直投股票/直投债券市值。逆回购（如 131810）按 0 久期处理。</p>
-
-        <h3 style="margin:24px 0 12px;font-size:13px;font-weight:600;color:var(--text-primary);">二、业绩涨跌幅指标</h3>
-        <table class="data-table" style="width:100%;">
-          <thead><tr><th style="width:200px;">指标</th><th>计算口径</th></tr></thead>
-          <tbody>
-            <tr><td>当日涨跌绝对值</td><td>= 期末单位净值 − 期初单位净值。对"当日"区间：期末 = 估值日当天净值，期初 = 前一交易日净值（即"今天净值 − 昨天净值"）。新成立首日或前日净值缺失时显示"—"。正值红色，负值绿色（中国惯例）</td></tr>
-            <tr><td>近1周涨跌幅(%)</td><td>= 期末单位净值 ÷ 5个交易日前单位净值 − 1。区间不足5个交易日或基准日净值缺失时显示"—"（如新成立产品）</td></tr>
-            <tr><td>近1月涨跌幅(%)</td><td>= 期末单位净值 ÷ 22个交易日前单位净值 − 1。基准日遇节假日顺延至上一交易日。区间不足或数据缺失时显示"—"</td></tr>
-            <tr><td>近3月涨跌幅(%)</td><td>= 期末单位净值 ÷ 42个交易日前单位净值 − 1。基准日遇节假日顺延至上一交易日。区间不足或数据缺失时显示"—"</td></tr>
-          </tbody>
-        </table>
-        <p style="margin-top:20px;font-size:11px;color:var(--text-muted);">
-          <b>数据来源</b>：每日拉取客户邮箱估值表后，自动累积至 <code>nav_history</code> 表，按交易日历回溯 5/22/42 个交易日计算对应期初净值。<br>
-          <b>展示配色</b>：上涨红色、下跌绿色（参考中国股市惯例，海外投资人如需反向配色可切换）。<br>
-          <b>排序</b>：列头点击可升/降序排序，便于横向对比同一区间不同产品表现。</p>
-        </p>
       </div>
     </div>
   </main>
@@ -823,7 +802,6 @@ function renderTable() {
     {id:'debtPct', label:'债权类资产占比(%)', sortable:true, key:p=>((p.deposit||0)+(p.reserve||0)+(p.repo||0)+p.pureBond+p.bondETF+p.money+p.secBond*0.85+(p.cb+p.cbFund)*0.5+p.hybFund*0.4)/p.assets},
     {id:'actualEquity', label:'实际权益风险敞口(%) <span class=tip data-tip="(直投股票+Σ基金市值×基金股票仓位)÷资产净值">ⓘ</span>', sortable:true, key:p=>(p.stock+p.eqFund*0.90+p.hybFund*0.60+p.secBond*0.15)/p.net},
     {id:'actualCB', label:'实际转债风险敞口(%) <span class=tip data-tip="(直投转债+Σ基金市值×基金转债仓位)÷资产净值">ⓘ</span>', sortable:true, key:p=>(p.cb+p.cbFund*0.90+p.secBond*0.10+p.hybFund*0.05)/p.net},
-    {id:'bondPos', label:'债券仓位(%) <span class=tip data-tip="直投债券市值 ÷ 资产净值。">ⓘ</span>', sortable:true, key:p=>calcBondMetrics(p).bondRatio},
     {id:'bondDur', label:'债券加权平均久期(年) <span class=tip data-tip="Σ(单只直投债券市值×该只债券久期)÷Σ(单只直投债券市值)，分母只算债券部分">ⓘ</span>', sortable:true, key:p=>calcBondMetrics(p).bondDuration ?? -1},
   ];
 
@@ -899,7 +877,6 @@ function renderTable() {
       <td class="num" style="color:var(--text-primary);">${(bondPct*100).toFixed(2)}%</td>
       <td class="num" style="color:var(--text-primary);">${(actualEquityPct*100).toFixed(2)}%</td>
       <td class="num" style="color:var(--text-primary);">${(actualCBEquityPct*100).toFixed(2)}%</td>
-      <td class="num" style="color:var(--accent);font-weight:600;">${(function(){const m=calcBondMetrics(p);return m.bondAssets>0?(m.bondRatio*100).toFixed(2)+'%':'-';})()}</td>
       <td class="num" style="color:var(--accent);font-weight:600;">${(function(){const m=calcBondMetrics(p);return m.bondDuration!=null?m.bondDuration.toFixed(2):'-';})()}</td>
     </tr>`;
   }).join('');
@@ -1419,3 +1396,4 @@ renderTable();
 </script>
 </body>
 </html>
+
